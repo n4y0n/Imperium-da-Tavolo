@@ -1,5 +1,4 @@
 import Hero from './core/Hero'
-import Troop from './core/Troop'
 
 /**
  * 

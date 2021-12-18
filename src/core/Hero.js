@@ -2,10 +2,12 @@ import Troop from './Troop'
 import { getMaxTroops } from '../utils'
 
 export default class Hero extends Troop {
-  constructor(name = "Eroe", hp = 100, atk, def, civ) {
-    super(name, hp, atk, def, civ)
+  constructor(name = "Eroe", hp = 100, atk, def, civ, skills) {
+    super(name, hp, atk, def, civ, skills)
     this.isHero = true
     this._MAX_TROOPS = getMaxTroops(civ)
+    this._level = 0
+
     /**
      * La posizione nel array è la posizione nella linea
      * @type {[Troop]} truppe
@@ -39,6 +41,10 @@ export default class Hero extends Troop {
     return this._MAX_TROOPS
   }
 
+  get level() {
+    return this._level
+  }
+ 
   dead() {
     for (let i = 0; i < this._MAX_TROOPS; i++) {
       if (this._troops[i]) {
