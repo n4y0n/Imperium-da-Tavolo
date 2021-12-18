@@ -10,17 +10,6 @@ export function simulazione(eroe1, eroe2) {
   console.log("Inizio simulazione!")
   console.log(`Convattono ${eroe1.name} con ${eroe1.firstTroupAvailable.name} vs. ${eroe2.name} con ${eroe2.firstTroupAvailable.name}`)
 
-  const { vincitore, log } = simulaConvattimento(eroe1, eroe2)
-
-  if (vincitore.name === eroe2.name) eroe1.dead()
-  else if (vincitore.name === eroe1.name) eroe2.dead()
-  else { eroe2.dead(); eroe1.dead() }
-
-  console.log(`Fine simulazione! Vincitore ${vincitore.name}`)
-  return log
-}
-
-function simulaConvattimento(eroe1, eroe2) {
   const log = []
   let vincitore = null
   let N = 0
@@ -38,10 +27,8 @@ function simulaConvattimento(eroe1, eroe2) {
     N++;
   }
 
-  return {
-    vincitore,
-    log
-  }
+  console.log(`Fine simulazione! Vincitore ${vincitore.name}`)
+  return log
 }
 
 /**

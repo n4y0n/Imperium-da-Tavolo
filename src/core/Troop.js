@@ -1,11 +1,11 @@
 export default class Troop {
-    constructor(name = "Legionari", hp = 100, atk = Math.ceil(Math.random() * 10), def = Math.ceil(Math.random() * 5), civ) {
-        this.hp = hp
-        this.atk = atk
-        this.def = def
+    constructor(name, hp, atk, def, civ, skills) {
+        this.hp = parseInt(hp)
+        this.atk = parseInt(atk)
+        this.def = parseInt(def)
         this.name = name
         this.energy = 10
-        this.skils = []
+        this.skills = skills ?? []
         this.civ = civ
 
         this.isHero = false
@@ -20,12 +20,10 @@ export default class Troop {
     }
 
     applyDamage(damage) {
-        // Applica skills qui
         for (let i = 0; i < this.skils.length; i++) {
             const skill = this.skils[i];
             damage = skill(this, damage)
         }
-
         this.hp -= damage
     }
 }

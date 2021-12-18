@@ -1,78 +1,42 @@
 import { useState } from 'react'
-import './App.css'
 import HeroComp from './components/Hero'
-import TroopComp from './components/Troop'
+// import TroopComp from './components/Troop'
 
-import Hero from './core/Hero'
-import Troop from './core/Troop'
-import { simulazione } from './simulazione'
+import heroes from './assets/heroes'
 
-// function SelezioneCivilta({ setEroe }) {
-//   return (
-//     <div className='selezione-eroe'>
-//       {eroi.map(eroe => (
-//         <img onClick={() => setEroe(new Eroe(eroe.nome, eroe.hp, eroe.atk, eroe.def))} src={eroe.image} />
-//       ))}
-//     </div>
-//   )
-// }
-
-
-function App() {
-  const [risultati, setRisultati] = useState([])
-  const [e2, setE2] = useState(new Hero("R", 12, 1, 1, "roma"))
-  const [e1, setE1] = useState(new Hero("B", 12, 1, 1, "britannia"))
-
-
-  const simulatuttecose = () => {
-    setRisultati([])
-    if (!e1 || !e2) return
-    const ris = simulazione(e1, e2)
-    setRisultati(risultati.concat(ris))
-  }
-
-  const aggiungiTruppa1 = () => {
-    e1.setTroop(0, new Troop("Legionari", 200, 16, 12))
-  }
-
-  const aggiungiTruppa2 = () => {
-    e2.setTroop(0, new Troop("Guerrieri", 200, 12, 6))
-  }
+function HeroSelectComp({ civ, hero, onChange, ...props }) {
+  const civHeroes = heroes[civ]
 
   return (
-    <div className="text-center">
-      <button onClick={simulatuttecose}>Simula</button>
-      <div>
-        <div className='riquadro-eroi'>
-          <div>
-            {e1 ? (
-              <>
-                <HeroComp hero={e1}></HeroComp>
-                <TroopComp hero={e1}></TroopComp>
-                <button className='btn-add-truppa' onClick={aggiungiTruppa1}>🤌</button>
-              </>
-            ) : <SelezioneCivilta setEroe={setE1} />}
-          </div>
-          <div>
-            {e2 ? (
-              <>
-                <HeroComp hero={e2}></HeroComp>
-                <TroopComp hero={e2}></TroopComp>
-                <button className='btn-add-truppa' onClick={aggiungiTruppa2}>🤌</button>
-              </>
-            ) : <SelezioneCivilta setEroe={setE2} />}
-          </div>
+    <div className="flex flex-col items-center" {...props}>
+      <h1 className='text-2xl font-bold mt-2'>Eroi disponibili [{civ}]</h1>
+      <ul>
+        {civHeroes.map(hero => (
+          <li className='cursor-pointer' key={hero.name + hero.civ} onClick={() => onChange(hero)}>
+            {hero.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function App() {
+  const [hero1, setHero1] = useState(null)
+  const [hero2, setHero2] = useState(null)
+
+  return (
+    <div>
+      <div className='grid grid-cols-2 text-center justify-center'>
+        <div>
+          {hero1 ? <HeroComp hero={hero1} /> : <HeroSelectComp civ="roma" hero={hero1} onChange={setHero1} />}
+        </div>
+        <div>
+          {hero2 ? <HeroComp hero={hero2} /> : <HeroSelectComp civ="roma" hero={hero2} onChange={setHero2} />}
         </div>
       </div>
-      <hr />
-      <h1>Risultati</h1>
-      <ul>
-        {risultati.map((mossa, i) =>
-          <li key={"mossa-" + i}>
-            {mossa}
-          </li>
-        )}
-      </ul>
+
+      {/* <TroopComp hero={null} /> */}
     </div>
   )
 }
