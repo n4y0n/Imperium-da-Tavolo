@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 
-function HeroComp({ hero }) {
+function HeroComp({ hero, ...props }) {
     return (
-        <section>
+        <section {...props}>
             <div className=''>
                 <h2>{hero.name}</h2>
             </div>
