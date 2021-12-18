@@ -1,63 +1,54 @@
 import { useState } from 'react'
 import './App.css'
-import EroeComp from './Eroe'
-import TruppeComp from './Truppe'
-import eroi from './assets/eroi'
+import HeroComp from './components/Hero'
+import TroopComp from './components/Troop'
 
-import { Eroe, Truppa, simulazione, stato } from './simulazione'
+import Hero from './core/Hero'
+import Troop from './core/Troop'
+import { simulazione } from './simulazione'
 
-function SelezioneCivilta({ setEroe }) {
-  return (
-    <div className='selezione-eroe'>
-      {eroi.map(eroe => (
-        <img onClick={() => setEroe(new Eroe(eroe.nome, eroe.hp, eroe.atk, eroe.def))} src={eroe.image} />
-      ))}
-    </div>
-  )
-}
+// function SelezioneCivilta({ setEroe }) {
+//   return (
+//     <div className='selezione-eroe'>
+//       {eroi.map(eroe => (
+//         <img onClick={() => setEroe(new Eroe(eroe.nome, eroe.hp, eroe.atk, eroe.def))} src={eroe.image} />
+//       ))}
+//     </div>
+//   )
+// }
 
 
 function App() {
   const [risultati, setRisultati] = useState([])
-  const [e1, setE1] = useState(null)
-  const [e2, setE2] = useState(null)
+  const [e2, setE2] = useState(new Hero("R", 12, 1, 1, "roma"))
+  const [e1, setE1] = useState(new Hero("B", 12, 1, 1, "britannia"))
 
 
   const simulatuttecose = () => {
     setRisultati([])
     if (!e1 || !e2) return
     const ris = simulazione(e1, e2)
-    setE1({ ...e1, truppe: e1.truppe })
-    setE2({ ...e2, truppe: e2.truppe })
     setRisultati(risultati.concat(ris))
-    console.log(e1.truppe);
-    console.log(e2.truppe);
   }
 
   const aggiungiTruppa1 = () => {
-    e1.setTruppa(0, new Truppa("Legionari", 200, 16, 12))
-    setE1({ ...e1, truppe: e1.truppe })
-    console.log(e1.nome, e1);
-    console.log(e2.nome, e2);
+    e1.setTroop(0, new Troop("Legionari", 200, 16, 12))
   }
 
   const aggiungiTruppa2 = () => {
-    e2.setTruppa(0, new Truppa("Guerrieri", 200, 12, 6))
-    setE2({ ...e2, truppe: e2.truppe })
-    console.log(e1.nome, e1);
-    console.log(e2.nome, e2);
+    e2.setTroop(0, new Troop("Guerrieri", 200, 12, 6))
   }
 
   return (
-    <div className="App">
+    <div className="text-center">
       <button onClick={simulatuttecose}>Simula</button>
       <div>
         <div className='riquadro-eroi'>
           <div>
             {e1 ? (
               <>
-                <EroeComp eroe={e1}></EroeComp>
-                <TruppeComp truppe={e1.truppe}></TruppeComp>
+                <HeroComp hero={e1}></HeroComp>
+                <TroopComp hero={e1}></TroopComp>
                 <button className='btn-add-truppa' onClick={aggiungiTruppa1}>🤌</button>
               </>
             ) : <SelezioneCivilta setEroe={setE1} />}
@@ -65,8 +56,8 @@ function App() {
           <div>
             {e2 ? (
               <>
-                <EroeComp eroe={e2}></EroeComp>
-                <TruppeComp truppe={e2.truppe}></TruppeComp>
+                <HeroComp hero={e2}></HeroComp>
+                <TroopComp hero={e2}></TroopComp>
                 <button className='btn-add-truppa' onClick={aggiungiTruppa2}>🤌</button>
               </>
             ) : <SelezioneCivilta setEroe={setE2} />}

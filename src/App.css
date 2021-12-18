@@ -1,7 +1,3 @@
-.App {
-  text-align: center;
-}
-
 .riquadro-eroi {
   display: grid;
   grid-template-columns: 1fr 1fr;

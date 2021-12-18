@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 
-function Truppe({ truppe }) {
+function TroopComp({ hero }) {
     return (
-        <div>Truppe:
-            {truppe.map((t, index) =>
+        <div>Truppe [MAX:{hero.maxTroops}]:
+            {hero.troops.map((t, index) =>
                 t ?
                     (<div key={index}>
                         <span>Posizione: {index}</span>
@@ -15,4 +15,4 @@ function Truppe({ truppe }) {
     )
 }
 
-export default Truppe
+export default TroopComp
