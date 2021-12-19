@@ -7,7 +7,7 @@ function UnitaDisponibili({ civ, onSelected, ...props }) {
   return (
     <div {...props}>
       {unitList.map(unit => (
-        <div onClick={() => onChange(unit)} className='pl-1 flex gap-2 items-center cursor-pointer border-solid border-2 m-3' key={civ + unit.name}>
+        <div onClick={() => onSelected(unit)} className='pl-1 flex gap-2 items-center cursor-pointer border-solid border-2 m-3' key={civ + unit.name}>
           <img width={80} src={img} />
           {unit.name.split('_').join(' ')}
         </div>
@@ -16,13 +16,18 @@ function UnitaDisponibili({ civ, onSelected, ...props }) {
   )
 }
 
-function TroopComp({ hero, onSelected, ...props }) {
+function TroopSelectComp({ hero, onChange, ...props }) {
   const [civ, setCiv] = useState(hero.civ)
   const [pos, setPos] = useState(0)
   const posizioni = []
 
   for (let p = 0; p < hero.maxTroops; p++) {
     posizioni.push(<option key={p} value={p}>{p}</option>)
+  }
+
+  const addTroop = (position, troop) => {
+    hero.setTroop(position, troop)
+    onChange?.(hero)
   }
 
   return (
@@ -35,9 +40,9 @@ function TroopComp({ hero, onSelected, ...props }) {
       </select>
 
       <h1 className='text-xl font-bold mt-2'>Truppe disponibili</h1>
-      {civ ? <UnitaDisponibili onSelected={unita => onSelected(pos, unita)} className="mt-3" civ={civ} /> : null}
+      {civ ? <UnitaDisponibili onSelected={unita => addTroop(pos, unita)} className="mt-3" civ={civ} /> : null}
     </div>
   )
 }
 
-export default TroopComp
+export default TroopSelectComp

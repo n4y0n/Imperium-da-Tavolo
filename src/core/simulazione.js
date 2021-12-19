@@ -1,4 +1,4 @@
-import Hero from './core/Hero'
+import Hero from './Hero'
 
 /**
  * 

@@ -17,7 +17,6 @@ function HeroComp({ hero, ...props }) {
             <div className='mt-5'>
                 {hero.troops.map(troop => <HeroesTroops key={troop.name} troop={troop}/>)}
             </div>
-
         </section>
     )
 }
