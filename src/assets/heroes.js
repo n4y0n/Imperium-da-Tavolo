@@ -1,7 +1,6 @@
 import csv_file from './imperivm_hero_stats.csv'
 import { getMaxTroops } from '../core/utils'
 
-
 const images = {}
 
 const unitas = {}
