@@ -28,8 +28,8 @@ function TroopSelectComp({ hero, onChange, ...props }) {
     posizioni.push(
       (
         <span onClick={() => setPos(p)} key={p}>
-          <label htmlFor={p}> P{p} </label>
-          <input id={p} name="posizione" key={p} type="radio" /> |
+          <label htmlFor={"posizione"+hero.name+p}> P{p} </label>
+          <input id={"posizione"+hero.name+p} name={"posizione"+hero.name} key={"posizione"+hero.name+p} type="radio" /> |
         </span>
       )
     )
