@@ -23,9 +23,10 @@ function HeroSelectComp({ onChange, civ, onCivChange, ...props }) {
 
     return (
         <div className='bg-gray-300' {...props}>
-            <select className='align-bottom' onChange={e => onCivChange(e.target.value)}>
+            <select className='align-bottom my-4' onChange={e => onCivChange(e.target.value)}>
                 {Object.keys(heroes).map(civ => <option key={civ} value={civ}>{civ}</option>)}
             </select>
+            <hr />
             <HeroList className="p-5" civ={civ} onChange={onChange} />
         </div>
     )

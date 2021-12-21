@@ -1,5 +1,5 @@
 import units from '../assets/units'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getUnitImage } from '../core/assets'
 
 function UnitaDisponibili({ civ, onSelected, ...props }) {
@@ -21,8 +21,18 @@ function TroopSelectComp({ hero, onChange, ...props }) {
   const [pos, setPos] = useState(0)
   const posizioni = []
 
+  useEffect(() => setCiv(hero.civ), [])
+
   for (let p = 0; p < hero.maxTroops; p++) {
-    posizioni.push(<option key={p} value={p}>{p}</option>)
+    // posizioni.push(<option key={p} value={p}>{p}</option>)
+    posizioni.push(
+      (
+        <span onClick={() => setPos(p)} key={p}>
+          <label htmlFor={p}> P{p} </label>
+          <input id={p} name="posizione" key={p} type="radio" /> |
+        </span>
+      )
+    )
   }
 
   const addTroop = (position, troop) => {
@@ -31,11 +41,13 @@ function TroopSelectComp({ hero, onChange, ...props }) {
 
   return (
     <div className="flex flex-col items-center" {...props}>
-      <select className='align-bottom' onChange={e => setPos(e.target.value)}>
+      {/* <select className='align-bottom' onChange={e => setPos(e.target.value)}> */}
+      <form action="">
         {posizioni}
-      </select>
+      </form>
+      {/* </select> */}
       <select className='align-bottom' onChange={e => setCiv(e.target.value)}>
-        {Object.keys(units).map(civ => <option key={civ} value={civ}>{civ}</option>)}
+        {Object.keys(units).map(civ => <option selected={civ === hero.civ} key={civ} value={civ}>{civ}</option>)}
       </select>
 
       <h1 className='text-xl font-bold mt-2'>Truppe disponibili</h1>
