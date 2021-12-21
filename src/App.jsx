@@ -8,7 +8,7 @@ import { selectHero, selectCiv, reset, setTroop } from './store/game'
 function TroopsComp({ troops, ...props }) {
   return (
     <div className='mt-5' {...props}>
-      {Object.values(troops).map(troop => <div key={troop.name}>{troop.name}</div>)}
+      {Object.entries(troops).map(([key, troop]) => <div key={key + troop.name}>POS: {key} | Troop: {troop.name}</div>)}
     </div>
   )
 }

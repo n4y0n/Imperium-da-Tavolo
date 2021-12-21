@@ -1,6 +1,6 @@
 import units from '../assets/units'
 import { useState } from 'react';
-import img from '../assets/anonymous.jpg'
+import { getUnitImage } from '../core/assets'
 
 function UnitaDisponibili({ civ, onSelected, ...props }) {
   const unitList = units[civ]
@@ -8,7 +8,7 @@ function UnitaDisponibili({ civ, onSelected, ...props }) {
     <div {...props}>
       {unitList.map(unit => (
         <div onClick={() => onSelected({ ...unit })} className='pl-1 flex gap-2 items-center cursor-pointer border-solid border-2 m-3' key={civ + unit.name}>
-          <img width={80} src={img} />
+          <img width={80} src={getUnitImage(unit.image)} />
           {unit.name.split('_').join(' ')}
         </div>
       ))}

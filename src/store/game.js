@@ -22,10 +22,10 @@ const slice = createSlice({
         selectHero: (state, { payload: { player, hero } }) => {
             switch (player) {
                 case 'p1':
-                    state.player1.hero = hero
+                    state.player1.hero = { ...hero }
                     break;
                 case 'p2':
-                    state.player2.hero = hero
+                    state.player2.hero = { ...hero }
                     break;
             }
         },
@@ -55,10 +55,10 @@ const slice = createSlice({
         setTroop: (state, { payload: { player, position, troop } }) => {
             switch (player) {
                 case 'p1':
-                    state.player1.troops = { ...state.player1.troops, [position]: troop }
+                    state.player1.troops = { ...state.player1.troops, [position]: { ...troop } }
                     break;
                 case 'p2':
-                    state.player2.troops = { ...state.player2.troops, [position]: troop }
+                    state.player2.troops = { ...state.player2.troops, [position]: { ...troop } }
                     break;
             }
         }
