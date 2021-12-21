@@ -7,7 +7,7 @@ function UnitaDisponibili({ civ, onSelected, ...props }) {
   return (
     <div {...props}>
       {unitList.map(unit => (
-        <div onClick={() => onSelected(unit)} className='pl-1 flex gap-2 items-center cursor-pointer border-solid border-2 m-3' key={civ + unit.name}>
+        <div onClick={() => onSelected({ ...unit })} className='pl-1 flex gap-2 items-center cursor-pointer border-solid border-2 m-3' key={civ + unit.name}>
           <img width={80} src={img} />
           {unit.name.split('_').join(' ')}
         </div>
@@ -26,8 +26,7 @@ function TroopSelectComp({ hero, onChange, ...props }) {
   }
 
   const addTroop = (position, troop) => {
-    hero.setTroop(position, troop)
-    onChange?.(hero)
+    onChange?.({ position, troop })
   }
 
   return (

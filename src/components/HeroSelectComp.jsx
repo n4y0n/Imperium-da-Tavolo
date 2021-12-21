@@ -17,13 +17,13 @@ function HeroList({ civ, onChange, ...props }) {
     )
 }
 
-function HeroSelectComp({ onChange, civ, setCiv, ...props }) {
+function HeroSelectComp({ onChange, civ, onCivChange, ...props }) {
     const defCiv = Object.keys(heroes)?.[0]
-    useEffect(() => { setCiv(defCiv) }, [])
+    useEffect(() => { onCivChange?.(defCiv) }, [])
 
     return (
         <div className='bg-gray-300' {...props}>
-            <select className='align-bottom' onChange={e => setCiv(e.target.value)}>
+            <select className='align-bottom' onChange={e => onCivChange(e.target.value)}>
                 {Object.keys(heroes).map(civ => <option key={civ} value={civ}>{civ}</option>)}
             </select>
             <HeroList className="p-5" civ={civ} onChange={onChange} />
