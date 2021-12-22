@@ -1,17 +1,21 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import heroes from '../assets/heroes'
 const [defCiv, ...other] = Object.keys(heroes)
 
 const initialState = {
-    player1: {
+    p1: {
         hero: null,
         troops: {},
         civ: defCiv
     },
-    player2: {
+    p2: {
         hero: null,
         troops: {},
         civ: defCiv
+    },
+    simulation: {
+        p1: null,
+        p2: null
     }
 }
 
@@ -22,49 +26,61 @@ const slice = createSlice({
         selectHero: (state, { payload: { player, hero } }) => {
             switch (player) {
                 case 'p1':
-                    state.player1.hero = { ...hero }
+                    state.p1.hero = { ...hero }
                     break;
                 case 'p2':
-                    state.player2.hero = { ...hero }
+                    state.p2.hero = { ...hero }
                     break;
             }
         },
         selectCiv: (state, { payload: { player, civ } }) => {
             switch (player) {
                 case 'p1':
-                    state.player1.civ = civ
+                    state.p1.civ = civ
                     break;
                 case 'p2':
-                    state.player2.civ = civ
+                    state.p2.civ = civ
                     break;
             }
         },
         reset: (state, { payload: { player } }) => {
             switch (player) {
                 case 'p1':
-                    state.player1 = { hero: null, civ: defCiv, troops: {} }
+                    state.p1 = { hero: null, civ: defCiv, troops: {} }
                     break;
                 case 'p2':
-                    state.player2 = { hero: null, civ: defCiv, troops: {} }
+                    state.p2 = { hero: null, civ: defCiv, troops: {} }
                     break;
                 default:
                     state = { ...initialState }
                     break;
             }
         },
+        resetSimulation: state => {
+            state.simulation = { ...initialState.simulation }
+        },
+        updateSimulation: (state, { payload }) => {
+            state.simulation = { ...payload }
+        },
         setTroop: (state, { payload: { player, position, troop } }) => {
             switch (player) {
                 case 'p1':
-                    state.player1.troops = { ...state.player1.troops, [position]: { ...troop } }
+                    state.p1.troops = { ...state.p1.troops, [position]: { ...troop } }
                     break;
                 case 'p2':
-                    state.player2.troops = { ...state.player2.troops, [position]: { ...troop } }
+                    state.p2.troops = { ...state.p2.troops, [position]: { ...troop } }
                     break;
             }
         }
     }
 })
 
-export const { selectCiv, selectHero, reset, setTroop } = slice.actions
+export const { selectCiv, selectHero, reset, setTroop, updateSimulation } = slice.actions
+
+
+export const simulate = createAsyncThunk('game/simulate', (arg, { getState, dispatch }) => {
+    const { game: { simulation } } = getState()
+    dispatch(updateSimulation({ p1: { ...simulation.p1 }, p2: { ...simulation.p2, hp: 100 } }))
+})
 
 export default slice.reducer

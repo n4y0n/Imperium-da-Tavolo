@@ -2,21 +2,40 @@ import units from '../assets/units'
 import { useEffect, useState } from 'react';
 import { getUnitImage } from '../core/assets'
 
-function UnitaDisponibili({ civ, onSelected, ...props }) {
+function UnitaDisponibili({ civ, onSelected }) {
+  if (!civ) return null
   const unitList = units[civ]
+  if (!unitList) return null
   return (
-    <div {...props}>
+    <div className='mt-3'>
       {unitList.map(unit => (
-        <div onClick={() => onSelected({ ...unit })} className='pl-1 flex gap-2 items-center cursor-pointer border-solid border-2 m-3' key={civ + unit.name}>
-          <img width={80} src={getUnitImage(unit.image)} />
-          {unit.name.split('_').join(' ')}
+        <div onClick={() => onSelected({ ...unit })} className='pl-1 grid grid-cols-2 gap-2 cursor-pointer border-solid border-2 m-3 shadow-md hover:shadow-sm' key={civ + unit.name}>
+          <div className='flex gap-2 border-r border-r-green-800'>
+            <div>
+              <div className='flex items-center min-h-full'>
+                <img width={80} src={getUnitImage(unit.image)} />
+              </div>
+            </div>
+            <div className='flex flex-col gap-1'>
+              <div className='font-bold'>
+                Name: {unit.name.split('_').join(' ')}
+              </div>
+              <span>Hp: {unit.hp}</span>
+              <span>Atk: {unit.atk}</span>
+              <span>Def: {unit.def}</span>
+            </div>
+          </div>
+          <div className='flex flex-col gap-1'>
+            <div className='font-bold'>Skills</div>
+            {unit.skills.map(skill => <span>{skill.split('_').join(' ')}</span>)}
+          </div>
         </div>
       ))}
     </div>
   )
 }
 
-function TroopSelectComp({ hero, onChange, ...props }) {
+function TroopSelectComp({ hero, onChange }) {
   const [civ, setCiv] = useState(hero.civ)
   const [pos, setPos] = useState(0)
   const posizioni = []
@@ -24,7 +43,6 @@ function TroopSelectComp({ hero, onChange, ...props }) {
   useEffect(() => setCiv(hero.civ), [])
 
   for (let p = 0; p < hero.maxTroops; p++) {
-    // posizioni.push(<option key={p} value={p}>{p}</option>)
     posizioni.push(
       (
         <span onClick={() => setPos(p)} key={"posizione" + hero.name + p}>
@@ -40,7 +58,7 @@ function TroopSelectComp({ hero, onChange, ...props }) {
   }
 
   return (
-    <div>
+    <div className='mt-4'>
       <form className='flex justify-center gap-2'>
         <select defaultValue={hero.civ} className='align-bottom' onChange={e => setCiv(e.target.value)}>
           {Object.keys(units).map(civ => <option key={civ + hero.name} value={civ}>{civ}</option>)}
@@ -48,7 +66,7 @@ function TroopSelectComp({ hero, onChange, ...props }) {
         {posizioni}
       </form>
       <h1 className='text-xl font-bold mt-2 text-center'>Truppe disponibili</h1>
-      {civ ? <UnitaDisponibili onSelected={unita => addTroop(pos, unita)} className="mt-3" civ={civ} /> : null}
+      <UnitaDisponibili onSelected={unita => addTroop(pos, unita)} civ={civ} />
     </div>
   )
 }
