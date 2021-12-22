@@ -61,6 +61,9 @@ const slice = createSlice({
             }
         },
         resetSimulation: state => {
+            state.p1.troops = Object.entries(state.p1.troops).filter(e => e[1].hp > 0).reduce((o, n) => { o[n[0]] = n[1]; return o }, {})
+            state.p2.troops = Object.entries(state.p2.troops).filter(e => e[1].hp > 0).reduce((o, n) => { o[n[0]] = n[1]; return o }, {})
+
             state.simulation = { ...initialState.simulation }
         },
         updateSimulation: (state, { payload }) => {
@@ -95,6 +98,12 @@ const slice = createSlice({
             })
             .addCase(simulate.fulfilled, (state, { payload }) => {
                 state.simulation.inProgress = false;
+                state.simulation.results = payload.logs;
+                state.p1.hero = payload.p1.hero;
+                state.p2.hero = payload.p2.hero;
+
+                state.p1.troops = payload.p1.troops;
+                state.p2.troops = payload.p2.troops;
             })
             .addCase(simulate.rejected, (state, { error }) => {
                 state.simulation = { ...initialState.simulation, error }
@@ -111,7 +120,6 @@ export const simulate = createAsyncThunk('game/simulate', async (arg, { getState
     context["p1"] = JSON.parse(JSON.stringify(p1))
     context["p2"] = JSON.parse(JSON.stringify(p2))
     context["logs"] = []
-
     context.logs.push = function (val) {
         console.log(val)
         Array.prototype.push.call(this, val)
@@ -123,7 +131,8 @@ export const simulate = createAsyncThunk('game/simulate', async (arg, { getState
 
     await scontro({ alice: { hero: context.p1.hero, troop: firstTroop(context.p1) }, bob: { hero: context.p2.hero, troop: firstTroop(context.p2) }, context })
 
-    dispatch(updateSimulation({ results: Array.from(context.logs) }))
+    context.logs = Array.from(context.logs)
+    return context
 })
 
 export default slice.reducer

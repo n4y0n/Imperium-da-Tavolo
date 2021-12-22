@@ -40,9 +40,9 @@ export function scontro({ alice, bob, context }) {
     // Se tutti e due hanno truppe
     if (atroop && btroop) troopvstroop({ atroop, btroop, iteration, ...context })
     // Bob non ha truppe
-    else if (!btroop && atroop) herovstroop({ bhero, atroop, iteration, ...context })
+    else if (!btroop && atroop) herovstroop({ hero: bhero, troop: atroop, iteration, ...context })
     // Alice non ha truppe
-    else if (!atroop && btroop) herovstroop({ ahero, btroop, iteration, ...context })
+    else if (!atroop && btroop) herovstroop({ hero: ahero, troop: btroop, iteration, ...context })
     // Nessuno dei due ha truppe
     else herovshero({ ahero, bhero, ...context })
 
@@ -52,16 +52,16 @@ export function scontro({ alice, bob, context }) {
 }
 
 function troopvstroop(context) {
-  const { atroop, btroop } = context;
+  const { atroop, btroop, logs } = context;
   if (atroop.hp <= 0 || btroop.hp <= 0) {
-    context.logs.push(`${atroop.name} ${atroop.hp.toString().substring(0, 5)}hp`);
-    context.logs.push(`${btroop.name} ${btroop.hp.toString().substring(0, 5)}hp`);
+    logs.push(`${atroop.name} ${atroop.hp.toString().substring(0, 5)}hp`);
+    logs.push(`${btroop.name} ${btroop.hp.toString().substring(0, 5)}hp`);
     if (atroop.hp <= 0 && btroop.hp <= 0) {
-      context.logs.push("Draw");
+      logs.push("Draw");
     } else if (atroop.hp <= 0 && !(btroop.hp <= 0)) {
-      context.logs.push(`${btroop.name} Win`);
+      logs.push(`${btroop.name} Win`);
     } else if (btroop.hp <= 0 && !(atroop.hp <= 0)) {
-      context.logs.push(`${atroop.name} Win`);
+      logs.push(`${atroop.name} Win`);
     }
     return
   }
@@ -71,38 +71,77 @@ function troopvstroop(context) {
     btroop.energy += 1
   }
 
-  context.logs.push(`Scontro ${atroop.name} contro ${btroop.name}`);
+  if (context.iteration === 0)
+    logs.push(`Scontro ${atroop.name} contro ${btroop.name}`);
+  else
+    logs.push(`--------------------------------------------`);
+
   applySkills(stages.BEFORE_DAMAGE, btroop, atroop, context)
 
   computeDamage(btroop, atroop);
   computeDamage(atroop, btroop);
 
-  if (applySkills(stages.WHILE_DAMAGE, btroop, atroop, context)) {
-    computeDamage(btroop, atroop)
-    computeDamage(atroop, btroop)
-  }
+  applySkills(stages.WHILE_DAMAGE, btroop, atroop, context)
 
+  logs.push(`${atroop.name} [${atroop.hp.toString().substring(0, 5)}hp] -> ${btroop.name} [${btroop.hp.toString().substring(0, 5)}hp] -${btroop.damage}hp ${(btroop.hp - btroop.damage).toString().substring(0, 5)}`)
+  logs.push(`${btroop.name} [${btroop.hp.toString().substring(0, 5)}hp] -> ${atroop.name} [${atroop.hp.toString().substring(0, 5)}hp] -${atroop.damage}hp ${(atroop.hp - atroop.damage).toString().substring(0, 5)}`)
   atroop.hp -= atroop.damage;
   btroop.hp -= btroop.damage;
-
-  context.logs.push(`${atroop.name} [${atroop.hp.toString().substring(0, 5)}hp] -> ${btroop.name} [${btroop.hp.toString().substring(0, 5)}hp] -${btroop.damage}hp`)
-  context.logs.push(`${btroop.name} [${btroop.hp.toString().substring(0, 5)}hp] -> ${atroop.name} [${atroop.hp.toString().substring(0, 5)}hp] -${atroop.damage}hp`)
 
   applySkills(stages.AFTER_DAMAGE, btroop, atroop, context)
   context.iteration += 1
   return troopvstroop(context)
 }
 
-function herovstroop(ctx) {
-  const { hero, troop } = ctx;
-  // # - 10 * troop hp if troop vs hero
-  troop.hp = troop.hp * 10;
-  console.log(`Scontro ${hero.name} contro ${troop.name}`);
+function herovstroop(context) {
+  const { hero, troop, logs } = context;
+  if (hero.hp <= 0 || troop.hp <= 0) {
+    logs.push(`${hero.name} ${hero.hp.toString().substring(0, 5)}hp`);
+    logs.push(`${troop.name} ${troop.hp.toString().substring(0, 5)}hp`);
+    if (hero.hp <= 0 && troop.hp <= 0) {
+      logs.push("Draw");
+    } else if (hero.hp <= 0 && !(troop.hp <= 0)) {
+      logs.push(`${troop.name} Win`);
+    } else if (troop.hp <= 0 && !(hero.hp <= 0)) {
+      logs.push(`${hero.name} Win`);
+    }
+    return
+  }
+
+  if (context.iteration % TURNS_PER_ENERGY_RECOVER === 0) {
+    hero.energy += 1
+    troop.energy += 1
+  }
+
+  if (context.iteration === 0) {
+    logs.push(`Scontro ${hero.name} contro ${troop.name}`);
+    // # - 10 * troop hp if troop vs hero
+    troop.hp = troop.hp * 10;
+  } else {
+    logs.push(`--------------------------------------------`);
+  }
+
+  applySkills1(stages.BEFORE_DAMAGE, troop, hero, context)
+
+  computeDamage(troop, hero);
+  computeDamage(hero, troop);
+
+  applySkills1(stages.WHILE_DAMAGE, troop, hero, context)
+
+  logs.push(`${hero.name} [${hero.hp.toString().substring(0, 5)}hp] -> ${troop.name} [${troop.hp.toString().substring(0, 5)}hp] -${troop.damage}hp ${(troop.hp - troop.damage).toString().substring(0, 5)}`)
+  logs.push(`${troop.name} [${troop.hp.toString().substring(0, 5)}hp] -> ${hero.name} [${hero.hp.toString().substring(0, 5)}hp] -${hero.damage}hp ${(hero.hp - hero.damage).toString().substring(0, 5)}`)
+  hero.hp -= hero.damage;
+  troop.hp -= troop.damage;
+
+  applySkills1(stages.AFTER_DAMAGE, troop, hero, context)
+  context.iteration += 1
+  return herovstroop(context)
 }
 
 function herovshero(ctx) {
-  const { ahero, bhero } = ctx;
-  console.log(`Scontro ${ahero.name} contro ${bhero.name}`);
+  const { ahero, bhero, logs } = ctx;
+  logs.push(`Scontro ${ahero.name} contro ${bhero.name}`);
+
 }
 
 /**
@@ -116,16 +155,18 @@ function computeDamage(self, other) {
 }
 
 function applySkills(stage, alice, bob, context) {
-  const damage = { recompute: false }
   for (const code of alice.skills ?? []) {
     if (!code) continue
-    applyTroopEffect(stage, code, { self: alice, ...context, damage })
+    applyTroopEffect(stage, code, { self: alice, other: bob, ...context })
   }
   for (const code of bob.skills ?? []) {
     if (!code) continue
-    applyTroopEffect(stage, code, { self: bob, ...context, damage })
+    applyTroopEffect(stage, code, { self: bob, other: alice, ...context })
   }
-  return damage.recompute
+}
+
+function applySkills1(stage, hero, troop, context) {
+
 }
 
 export function firstTroop({ hero, troops }) {
