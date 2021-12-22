@@ -27,9 +27,9 @@ function TroopSelectComp({ hero, onChange, ...props }) {
     // posizioni.push(<option key={p} value={p}>{p}</option>)
     posizioni.push(
       (
-        <span onClick={() => setPos(p)} key={p}>
-          <label htmlFor={"posizione"+hero.name+p}> P{p} </label>
-          <input id={"posizione"+hero.name+p} name={"posizione"+hero.name} key={"posizione"+hero.name+p} type="radio" /> |
+        <span onClick={() => setPos(p)} key={"posizione" + hero.name + p}>
+          <label htmlFor={"posizione" + hero.name + p}> P{p} </label>
+          <input id={"posizione" + hero.name + p} name={"posizione" + hero.name} type="radio" /> |
         </span>
       )
     )
@@ -40,17 +40,14 @@ function TroopSelectComp({ hero, onChange, ...props }) {
   }
 
   return (
-    <div className="flex flex-col items-center" {...props}>
-      {/* <select className='align-bottom' onChange={e => setPos(e.target.value)}> */}
-      <form action="">
+    <div>
+      <form className='flex justify-center gap-2'>
+        <select defaultValue={hero.civ} className='align-bottom' onChange={e => setCiv(e.target.value)}>
+          {Object.keys(units).map(civ => <option key={civ + hero.name} value={civ}>{civ}</option>)}
+        </select>
         {posizioni}
       </form>
-      {/* </select> */}
-      <select className='align-bottom' onChange={e => setCiv(e.target.value)}>
-        {Object.keys(units).map(civ => <option selected={civ === hero.civ} key={civ} value={civ}>{civ}</option>)}
-      </select>
-
-      <h1 className='text-xl font-bold mt-2'>Truppe disponibili</h1>
+      <h1 className='text-xl font-bold mt-2 text-center'>Truppe disponibili</h1>
       {civ ? <UnitaDisponibili onSelected={unita => addTroop(pos, unita)} className="mt-3" civ={civ} /> : null}
     </div>
   )

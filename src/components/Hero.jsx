@@ -2,7 +2,7 @@ import React from 'react'
 
 function HeroComp({ hero, ...props }) {
     return (
-        <section {...props}>
+        <section className='flex flex-col items-center'>
             <h2 className='font-bold text-xl'>{hero.name}</h2>
             <p>HP: {hero.hp}</p>
             <p>ATK: {hero.atk}</p>
