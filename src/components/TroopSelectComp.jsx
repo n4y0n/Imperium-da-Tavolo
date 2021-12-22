@@ -27,7 +27,7 @@ function UnitaDisponibili({ civ, onSelected }) {
           </div>
           <div className='flex flex-col gap-1'>
             <div className='font-bold'>Skills</div>
-            {unit.skills.map(skill => <span>{skill.split('_').join(' ')}</span>)}
+            {unit.skills.map(skill => <span key={civ + unit.name + skill}>{skill.split('_').join(' ')}</span>)}
           </div>
         </div>
       ))}

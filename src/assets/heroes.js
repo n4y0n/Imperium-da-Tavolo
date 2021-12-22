@@ -11,9 +11,9 @@ for (const element of csv_file) {
     if (!civ) continue
 
     if (unitas[civ]) {
-        unitas[civ].push({ name, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, hero: true, energy: 10, skills: [], maxTroops: getMaxTroops(civ), image })
+        unitas[civ].push({ name, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, skills: [], maxTroops: getMaxTroops(civ), level: 0, image, items: [] })
     } else {
-        unitas[civ] = [{ name, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, hero: true, energy: 10, skills: [], maxTroops: getMaxTroops(civ), image }]
+        unitas[civ] = [{ name, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, skills: [], maxTroops: getMaxTroops(civ), level: 0, image, items: [] }]
     }
 }
 

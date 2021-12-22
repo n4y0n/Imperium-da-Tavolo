@@ -133,9 +133,9 @@ for (const { nome, hp, atk, def, image, ability1, ability2 } of csv_file) {
     if (!civ) continue
 
     if (unitas[civ]) {
-        unitas[civ].push({ name, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, hero: false, energy: 10, skills: [ability1, ability2], image })
+        unitas[civ].push({ name, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, skills: [ability1, ability2], image })
     } else {
-        unitas[civ] = [{ name, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, hero: false, energy: 10, skills: [ability1, ability2], image }]
+        unitas[civ] = [{ name, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, skills: [ability1, ability2], image }]
     }
 }
 export { images }

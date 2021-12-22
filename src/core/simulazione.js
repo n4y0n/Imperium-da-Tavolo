@@ -1,56 +1,92 @@
-import Hero from './Hero'
+// Durante il conbattimento
 
-/**
- * 
- * @param {Hero} eroe1 
- * @param {Hero} eroe2 
- */
-export function simulazione(eroe1, eroe2) {
-  console.log("Inizio simulazione!")
-  console.log(`Convattono ${eroe1.name} con ${eroe1.firstTroupAvailable.name} vs. ${eroe2.name} con ${eroe2.firstTroupAvailable.name}`)
+import { getMaxTroops } from "./utils";
+import { applyEffect, applyTroopEffect } from "./effects";
 
-  const log = []
-  let vincitore = null
-  let N = 0
+// Effetti
+// Hero Level, Oggetti, Skills (Eroe), Skills (Truppe)
 
-  if (eroe1.firstTroupAvailable.isHero && !eroe2.firstTroupAvailable.isHero) {
-    eroe2.firstTroupAvailable.hp *= 10
-  } else if (!eroe1.firstTroupAvailable.isHero && eroe2.firstTroupAvailable.isHero) {
-    eroe1.firstTroupAvailable.hp *= 10
-  }
+// Priorita
+// # - 10 * troop hp if troop vs hero
+// 1 - Hero level (troop hp + 5 * hero Level)
+// 2 - Hero Skills
+// 3 - Oggetti
+// 4 - Troop Skills
 
-  while (eroe1.firstTroupAvailable.alive && eroe2.firstTroupAvailable.alive) {
-    log.push(`---- Inizio Iterazione ${N}`)
-    vincitore = iterazioneConvattimento(eroe1, eroe2, log)
-    log.push(`---- Fine Iterazione ${N}`)
-    N++;
-  }
 
-  console.log(`Fine simulazione! Vincitore ${vincitore.name}`)
-  return log
+export function scontro({ alice, bob, context }) {
+  return new Promise((resolve, reject) => {
+    console.log("Inizio simulazione!")
+    const { hero: ahero, troop: atroop } = alice;
+    const { hero: bhero, troop: btroop } = bob;
+
+    console.log(`Scontro tra Alice con ${ahero.name} e Bob con ${bhero.name}`);
+
+    // 1 - Hero level (troop hp + 5 * hero Level)
+    if (atroop) atroop.hp + 5 * ahero.level
+    if (btroop) btroop.hp + 5 * bhero.level
+
+    // 2 - Hero Skills
+    for (const code of ahero.skills ?? []) {
+      applyEffect(code, { alice, bob })
+    }
+    for (const code of bhero.skills ?? []) {
+      applyEffect(code, { alice, bob })
+    }
+
+    // 3 - Oggetti
+    for (const code of ahero.items ?? []) {
+      applyEffect(code, { alice, bob })
+    }
+    for (const code of bhero.items ?? []) {
+      applyEffect(code, { alice, bob })
+    }
+
+    // Se tutti e due hanno truppe
+    if (atroop && btroop) troopvstroop({ atroop, btroop, ...context })
+    // Bob non ha truppe
+    else if (!btroop && atroop) herovstroop({ bhero, atroop, ...context })
+    // Alice non ha truppe
+    else if (!atroop && btroop) herovstroop({ ahero, btroop, ...context })
+    // Nessuno dei due ha truppe
+    else herovshero({ ahero, bhero, ...context })
+
+    console.log("Fine simulazione!");
+    resolve()
+  })
 }
 
-/**
- * 
- * @param {Hero} eroe1 
- * @param {Hero} eroe2 
- */
-function iterazioneConvattimento(eroe1, eroe2, log) {
-  let vincitore = { name: "Draw" }
+function troopvstroop(ctx) {
+  const { atroop, btroop } = ctx
+  console.log(`Scontro ${atroop.name} contro ${btroop.name}`);
 
-  const danno1 = eroe1.firstTroupAvailable.computeDamage(eroe2.firstTroupAvailable)
-  const danno2 = eroe2.firstTroupAvailable.computeDamage(eroe1.firstTroupAvailable)
-
-  eroe1.firstTroupAvailable.applyDamage(danno2)
-  eroe2.firstTroupAvailable.applyDamage(danno1)
-
-  log.push(`${eroe1.name} fa ${Math.round(danno1)} alle truppe di ${eroe2.name} [${Math.round(eroe2.firstTroupAvailable.hp)}HP]`)
-  log.push(`${eroe2.name} fa ${Math.round(danno2)} alle truppe di ${eroe1.name} [${Math.round(eroe1.firstTroupAvailable.hp)}HP]`)
-
-  if (eroe1.firstTroupAvailable.alive && !eroe2.firstTroupAvailable.alive) {
-    vincitore = Object.assign({}, eroe1)
-  } else if (!eroe1.firstTroupAvailable.alive && eroe2.firstTroupAvailable.alive) {
-    vincitore = Object.assign({}, eroe2)
+  for (const code of atroop.skills ?? []) {
+    applyTroopEffect(code, ctx)
   }
-  return vincitore
+  for (const code of btroop.skills ?? []) {
+    applyTroopEffect(code, ctx)
+  }
+}
+
+function herovstroop(ctx) {
+  const { hero, troop } = ctx
+
+  // # - 10 * troop hp if troop vs hero
+  troop.hp = troop.hp * 10
+  console.log(`Scontro ${hero.name} contro ${troop.name}`);
+
+}
+
+function herovshero(ctx) {
+  const { ahero, bhero } = ctx
+  console.log(`Scontro ${ahero.name} contro ${bhero.name}`);
+
+}
+
+export function firstTroop({ hero, troops }) {
+  for (let position = 0; position < getMaxTroops(hero.civ); position++) {
+    const troop = troops[position];
+    if (troop && troop.hp > 0) return troop
+  }
+  return null
 }

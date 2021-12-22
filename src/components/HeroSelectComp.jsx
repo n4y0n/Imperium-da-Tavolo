@@ -1,9 +1,9 @@
 import heroes from '../assets/heroes'
 import anon from '../assets/anonymous.jpg'
 
-function HeroItem({ hero, onChange, ...props }) {
+function HeroItem({ hero, onChange }) {
     return (
-        <li {...props} className='cursor-pointer min-w-full shadow-xl hover:shadow-lg' key={hero.name + hero.civ} onClick={() => onChange?.({ ...hero })}>
+        <li className='cursor-pointer min-w-full shadow-xl hover:shadow-lg' key={hero.name + hero.civ} onClick={() => onChange?.({ ...hero })}>
             <div className='flex justify-start p-1 gap-2'>
                 <img width={80} src={anon} className='' />
                 {hero.name.split('_').join(' ')}
@@ -12,11 +12,11 @@ function HeroItem({ hero, onChange, ...props }) {
     )
 }
 
-function HeroList({ civ, onChange, ...props }) {
+function HeroList({ civ, onChange }) {
     const civHeroes = heroes[civ]
     return (
-        <div {...props} className="flex flex-col items-center min-w-full">
-            <ul className='max-w-full'>
+        <div className="min-w-full">
+            <ul className='p-3'>
                 {civHeroes.map(hero => (
                     <HeroItem onChange={onChange} key={hero.name + hero.civ} hero={hero} />
                 ))}
@@ -25,11 +25,11 @@ function HeroList({ civ, onChange, ...props }) {
     )
 }
 
-function HeroSelectComp({ onChange, civ, onCivChange, ...props }) {
+function HeroSelectComp({ onChange, civ, onCivChange }) {
     const defCiv = Object.keys(heroes)?.[0]
 
     return (
-        <div {...props} className='bg-gray-300 flex flex-col items-center justify-center'>
+        <div className='bg-gray-300 flex flex-col items-center justify-center'>
             <select defaultValue={defCiv} className='my-2' onChange={e => onCivChange(e.target.value)}>
                 {Object.keys(heroes).map(civ => <option key={civ} value={civ}>{civ}</option>)}
             </select>

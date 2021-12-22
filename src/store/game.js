@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import heroes from '../assets/heroes'
+import { scontro, firstTroop } from '../core/simulazione'
 const [defCiv, ...other] = Object.keys(heroes)
 
 const initialState = {
@@ -15,7 +16,10 @@ const initialState = {
     },
     simulation: {
         p1: null,
-        p2: null
+        p2: null,
+        inProgress: false,
+        error: null,
+        results: [],
     }
 }
 
@@ -71,16 +75,47 @@ const slice = createSlice({
                     state.p2.troops = { ...state.p2.troops, [position]: { ...troop } }
                     break;
             }
+        },
+        setLevel: (state, { payload: { player, level } }) => {
+            switch (player) {
+                case 'p1':
+                    state.p1.hero.level = level
+                    break;
+                case 'p2':
+                    state.p2.hero.level = level
+                    break;
+            }
         }
+    },
+    extraReducers: builder => {
+        builder
+            .addCase(simulate.pending, (state, { payload }) => {
+                state.simulation.inProgress = true;
+                state.simulation.error = null;
+            })
+            .addCase(simulate.fulfilled, (state, { payload }) => {
+                state.simulation.inProgress = false;
+            })
+            .addCase(simulate.rejected, (state, { error }) => {
+                state.simulation = { ...initialState.simulation, error }
+            })
     }
 })
 
-export const { selectCiv, selectHero, reset, setTroop, updateSimulation } = slice.actions
+export const { selectCiv, selectHero, reset, setTroop, updateSimulation, resetSimulation, setLevel } = slice.actions
 
+export const simulate = createAsyncThunk('game/simulate', async (arg, { getState, dispatch }) => {
+    const { game: { p1, p2, simulation } } = getState()
+    // Deepcopy players
+    const context = JSON.parse(JSON.stringify(simulation))
+    context.p1 = JSON.parse(JSON.stringify(p1))
+    context.p2 = JSON.parse(JSON.stringify(p2))
 
-export const simulate = createAsyncThunk('game/simulate', (arg, { getState, dispatch }) => {
-    const { game: { simulation } } = getState()
-    dispatch(updateSimulation({ p1: { ...simulation.p1 }, p2: { ...simulation.p2, hp: 100 } }))
+    if (!p1?.hero || !p2?.hero) {
+        throw new Error("Tutti i giocatori devono aver selezionato un eroe.")
+    }
+
+    await scontro({ alice: { hero: context.p1.hero, troop: firstTroop(context.p1) }, bob: { hero: context.p2.hero, troop: firstTroop(context.p2) }, context })
 })
 
 export default slice.reducer
