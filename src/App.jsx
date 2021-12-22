@@ -6,10 +6,11 @@ import Simulazione from './components/Simulazione'
 function App() {
   const dispatch = useDispatch()
   const inProgress = useSelector(state => state.game.simulation.inProgress)
+  const results = useSelector(state => state.game.simulation.results)
   const error = useSelector(state => state.game.simulation.error)
   const startSimulation = () => { dispatch(simulate()) }
-  if (inProgress) {
-    return <Simulazione />
+  if (inProgress || results.length > 0) {
+    return <Simulazione results={results} />
   }
 
   return (

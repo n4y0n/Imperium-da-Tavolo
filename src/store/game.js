@@ -108,14 +108,22 @@ export const simulate = createAsyncThunk('game/simulate', async (arg, { getState
     const { game: { p1, p2, simulation } } = getState()
     // Deepcopy players
     const context = JSON.parse(JSON.stringify(simulation))
-    context.p1 = JSON.parse(JSON.stringify(p1))
-    context.p2 = JSON.parse(JSON.stringify(p2))
+    context["p1"] = JSON.parse(JSON.stringify(p1))
+    context["p2"] = JSON.parse(JSON.stringify(p2))
+    context["logs"] = []
+
+    context.logs.push = function (val) {
+        console.log(val)
+        Array.prototype.push.call(this, val)
+    }
 
     if (!p1?.hero || !p2?.hero) {
         throw new Error("Tutti i giocatori devono aver selezionato un eroe.")
     }
 
     await scontro({ alice: { hero: context.p1.hero, troop: firstTroop(context.p1) }, bob: { hero: context.p2.hero, troop: firstTroop(context.p2) }, context })
+
+    dispatch(updateSimulation({ results: Array.from(context.logs) }))
 })
 
 export default slice.reducer

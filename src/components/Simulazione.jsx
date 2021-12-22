@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 
-function Simulazione() {
+function Simulazione({ results }) {
     return (
         <div>
-            TODO: Metti qui la grafica della simulzione
+            <ul>
+                {results.map(text => <li>{text}</li>)}
+            </ul>
         </div>
     )
 }
