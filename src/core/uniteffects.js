@@ -22,6 +22,7 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
             const new_def = (self.energy * 2);
             logs.push(`${self.name} aumenta la sua difesa di: ${new_def}`);
             self.def += new_def;
+            return true;
         }
     },
     attack_skill: {
@@ -30,6 +31,7 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
             const new_atk = (self.energy * 2);
             logs.push(`${self.name} aumenta il suo attacco di: ${new_atk}`);
             self.atk += new_atk;
+            return true;
         }
     },
     expertise: {
@@ -39,6 +41,7 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
                 const new_atk = 9999;
                 logs.push(`${self.name} uccide all'istante: ${other.name}`);
                 self.atk += new_atk;
+                return true;
             }
         }
     },
@@ -47,6 +50,7 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
         apply: ({ self, logs, other }) => {
             logs.push(`${self.name} ignora l'armatura di: ${other.name}`);
             other.def = 0;
+            return true;
         }
     },
     triple_strike: {
@@ -55,6 +59,7 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
             const new_atk = self.atk * 3;
             logs.push(`${self.name} usa triple_strike ed infligge ${new_atk} danni ad ${other.name}`);
             self.atk = new_atk;
+            return true;
         }
     },
     offensive_tactics: {
@@ -63,6 +68,7 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
             const new_atk = self.atk + self.level;
             logs.push(`${self.name} usa offensive_tactics ed infligge ${new_atk} danni ad ${other.name}`);
             self.atk = new_atk;
+            return true;
         }
     },
 }
@@ -74,6 +80,7 @@ effects[stages.AFTER_DAMAGE_COMPUTE] = {
         apply: ({ self, other, logs }) => {
             logs.push(`${self.name} usa mirror_damage riflettendo ${self.damage}hp di danno [${self.energy - 1}ep]`)
             other.damage += self.damage;
+            return true;
         }
     },
     death_blow: {
@@ -82,6 +89,7 @@ effects[stages.AFTER_DAMAGE_COMPUTE] = {
             if (other.hp < (other.maxHp * 0.2) && !other.isHero) {
                 logs.push(`${self.name} usa death_blow eliminando ${other.name} che aveva ${other.hp}hp.`)
                 other.damage += other.hp + 1;
+                return true;
             }
         }
     },
@@ -93,6 +101,7 @@ effects[stages.AFTER_DAMAGE_COMPUTE] = {
             const new_damage = other.maxHp * 0.1;
             logs.push(`${self.name} usa bleeding attack ed infligge ${new_damage} danni.`)
             other.damage += new_damage;
+            return true;
         }
     },
 }
@@ -125,6 +134,7 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
                 return;
             logs.push(`${self.name} usa revenge ed infligge 100 danni ad ${other.name}`)
             other.hp -= 100;
+            return true;
         }
     },
     triumph: {
@@ -134,6 +144,7 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
                 return;
             logs.push(`${self.name} usa triumph e si cura completamente.`)
             self.hp = self.maxHp;
+            return true;
         }
     },
     life_steal: {
@@ -141,6 +152,9 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         apply: ({ self, logs, other }) => {
             logs.push(`${self.name} si cura di ${other.damage}hp`)
             self.hp += other.damage;
+            if(self.hp > self.maxHp)
+                self.hp = self.maxHp;
+            return true;
         }
     },
     determination: {
@@ -148,6 +162,7 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         apply: ({ self, logs }) => {
             logs.push(`${self.name} usa determination e ripristina 1 punto energia.`)
             self.energy += 1;
+            return true;
         }
     },
     combat_skill: {
@@ -155,15 +170,17 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         apply: ({ self, logs }) => {
             logs.push(`${self.name} usa combat_skill e ripristina 1 punto energia.`)
             self.energy += 1;
+            return true;
         }
     },
     drain: {
         cost: 0,
         apply: ({ self, logs, other }) => {
-            logs.push(`${self.name} usa drain e riduce di 2 l'energia dell'avversario. ${other.energy - 2}`)
             other.energy -= 2;
             if (other.energy < 0)
                 other.energy = 0;
+            logs.push(`${self.name} usa drain e riduce di 2 l'energia dell'avversario. ${other.energy}`)
+            return true;
         }
     },
 }
