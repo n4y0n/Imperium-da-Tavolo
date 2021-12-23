@@ -1,4 +1,4 @@
-image: node:10.16.3 # change to match your project's node version
+image: node:stretch-slim
 
 cache:
   paths:
