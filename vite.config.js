@@ -7,5 +7,6 @@ export default defineConfig({
   build: {
     assetsDir: '',
   },
+  publicDir: 'src/tools',
   plugins: [react(), CSV()]
 })
