@@ -1,6 +1,7 @@
 {
-  "name": "vite-project",
-  "version": "0.0.0",
+  "name": "imperium-da-tavolo",
+  "version": "0.1.0",
+  "homepage": "https://n4y0n.gitlab.io/imperium-da-tavolo",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
