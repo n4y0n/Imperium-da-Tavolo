@@ -14,6 +14,6 @@ build:
     - CI=false npm run build
   artifacts:
     paths:
-      - public
+      - dist
   only:
     - master
