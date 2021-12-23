@@ -28,12 +28,13 @@ function pushState(obj) {
 function popState(obj) {
   const top = STACK.pop()
   for (const [key, val] of Object.entries(top)) {
-    obj[key] = val
+    if (key !== 'energy')
+      obj[key] = val
   }
 }
 
 export function scontro({ alice, bob, context }) {
-  const iteration = 0
+  const iteration = 1
   return new Promise((resolve, reject) => {
     context.logs.push("Inizio simulazione!")
     const { hero: ahero, troop: atroop } = alice;
@@ -53,6 +54,13 @@ export function scontro({ alice, bob, context }) {
     // 2 - Hero Skills
 
     // 3 - Oggetti
+
+    // Applica le single-use skill
+    for (let skill of ahero.skills)
+      applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...context })
+    for (let skill of bhero.skills)
+      applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...context })
+
 
     // Se tutti e due hanno truppe
     if (atroop && btroop) {
@@ -97,28 +105,28 @@ function troopvstroop(context) {
   }
 
   if (context.iteration === 0)
-    logs.push(`Scontro ${atroop.name} contro ${btroop.name}`);
+    logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
   else
     logs.push(`--------------------------------------------`);
 
   pushState(atroop)
   pushState(btroop)
 
-  applySkills(stages.BEFORE_DAMAGE, btroop, atroop, context)
+  applySkills(stages.BEFORE_DAMAGE_COMPUTE, btroop, atroop, context)
   computeDamage(btroop, atroop);
   computeDamage(atroop, btroop);
 
   popState(btroop)
   popState(atroop)
 
-  applySkills(stages.WHILE_DAMAGE, btroop, atroop, context)
+  applySkills(stages.AFTER_DAMAGE_COMPUTE, btroop, atroop, context)
 
   logs.push(`${atroop.name} [${atroop.hp.toString().substring(0, 5)}hp] -> ${btroop.name} [${btroop.hp.toString().substring(0, 5)}hp] -${btroop.damage}hp ${(btroop.hp - btroop.damage).toString().substring(0, 5)}`)
   logs.push(`${btroop.name} [${btroop.hp.toString().substring(0, 5)}hp] -> ${atroop.name} [${atroop.hp.toString().substring(0, 5)}hp] -${atroop.damage}hp ${(atroop.hp - atroop.damage).toString().substring(0, 5)}`)
   atroop.hp -= atroop.damage;
   btroop.hp -= btroop.damage;
 
-  applySkills(stages.AFTER_DAMAGE, btroop, atroop, context)
+  applySkills(stages.AFTER_DAMAGE_APPLY, btroop, atroop, context)
   context.iteration += 1
   return troopvstroop(context)
 }
@@ -153,21 +161,22 @@ function herovstroop(context) {
 
   pushState(troop)
   pushState(hero)
-  applySkills1(stages.BEFORE_DAMAGE, troop, hero, context)
+  applySkills1(stages.BEFORE_DAMAGE_COMPUTE, troop, hero, context)
 
   computeDamage(troop, hero);
   computeDamage(hero, troop);
 
-  applySkills1(stages.WHILE_DAMAGE, troop, hero, context)
   popState(hero)
   popState(troop)
+
+  applySkills1(stages.AFTER_DAMAGE_COMPUTE, troop, hero, context)
 
   logs.push(`${hero.name} [${hero.hp.toString().substring(0, 5)}hp] -> ${troop.name} [${troop.hp.toString().substring(0, 5)}hp] -${troop.damage}hp ${(troop.hp - troop.damage).toString().substring(0, 5)}`)
   logs.push(`${troop.name} [${troop.hp.toString().substring(0, 5)}hp] -> ${hero.name} [${hero.hp.toString().substring(0, 5)}hp] -${hero.damage}hp ${(hero.hp - hero.damage).toString().substring(0, 5)}`)
   hero.hp -= hero.damage;
   troop.hp -= troop.damage;
 
-  applySkills1(stages.AFTER_DAMAGE, troop, hero, context)
+  applySkills1(stages.AFTER_DAMAGE_APPLY, troop, hero, context)
   context.iteration += 1
   return herovstroop(context)
 }
@@ -202,21 +211,22 @@ function herovshero(ctx) {
 
   pushState(bhero)
   pushState(ahero)
-  applySkills2(stages.BEFORE_DAMAGE, bhero, ahero, context)
+  applySkills2(stages.BEFORE_DAMAGE_COMPUTE, bhero, ahero, context)
 
   computeDamage(bhero, ahero);
   computeDamage(ahero, bhero);
 
-  applySkills2(stages.WHILE_DAMAGE, bhero, ahero, context)
   popState(ahero)
   popState(bhero)
+
+  applySkills2(stages.AFTER_DAMAGE_COMPUTE, bhero, ahero, context)
 
   logs.push(`${ahero.name} [${ahero.hp.toString().substring(0, 5)}hp] -> ${bhero.name} [${bhero.hp.toString().substring(0, 5)}hp] -${bhero.damage}hp ${(bhero.hp - bhero.damage).toString().substring(0, 5)}`)
   logs.push(`${bhero.name} [${bhero.hp.toString().substring(0, 5)}hp] -> ${ahero.name} [${ahero.hp.toString().substring(0, 5)}hp] -${ahero.damage}hp ${(ahero.hp - ahero.damage).toString().substring(0, 5)}`)
   ahero.hp -= ahero.damage;
   bhero.hp -= bhero.damage;
 
-  applySkills2(stages.AFTER_DAMAGE, bhero, ahero, context)
+  applySkills2(stages.AFTER_DAMAGE_APPLY, bhero, ahero, context)
   context.iteration += 1
   return herovstroop(context)
 

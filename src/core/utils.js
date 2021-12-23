@@ -1,7 +1,8 @@
 export const stages = {
-    BEFORE_DAMAGE: 'before_damage#',
-    WHILE_DAMAGE: 'while_damage#',
-    AFTER_DAMAGE: 'after_damage#',
+    BEFORE_BATTLE: 'before_battle#',
+    BEFORE_DAMAGE_COMPUTE: 'before_damage#',
+    AFTER_DAMAGE_COMPUTE: 'while_damage#',
+    AFTER_DAMAGE_APPLY: 'after_damage#',
 }
 
 export const actors = {

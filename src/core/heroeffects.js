@@ -10,16 +10,20 @@ const esempioEffetto = {
 }
 
 // NON ha a disposizione la variabile `self.damage` con il danno che gli verrà applicato
-effects[stages.BEFORE_DAMAGE] = {
-    [esempioNome]: esempioEffetto
+// `self` ha a disposizione self.hero e self.troop rispettivamente l'eroe che ha attivato la skill e la truppa corrente
+effects[stages.BEFORE_BATTLE] = {
+}
+
+// NON ha a disposizione la variabile `self.damage` con il danno che gli verrà applicato
+effects[stages.BEFORE_DAMAGE_COMPUTE] = {
 }
 
 // Ha a disposizione la variabile `self.damage` con il danno che gli verrà applicato
-effects[stages.WHILE_DAMAGE] = {
+effects[stages.AFTER_DAMAGE_COMPUTE] = {
 
 }
 
-effects[stages.AFTER_DAMAGE] = {
+effects[stages.AFTER_DAMAGE_APPLY] = {
 
 }
 

@@ -7,8 +7,8 @@ function appyEffect(actor, stage, code, context) {
     const skill = (actor !== actors.HERO ? unitEffects : heroEffects)[stage]?.[code];
     if (!skill) return
     if (context.self.energy > skill.cost) {
-        skill.apply(context)
-        context.self.energy -= skill.cost
+        if (skill.apply(context))
+            context.self.energy -= skill.cost
     }
 }
 
