@@ -27,9 +27,10 @@ function pushState(obj) {
 
 function popState(obj) {
   const top = STACK.pop()
-  for (const [key, val] of Object.entries(top)) {
+  for (const [key, val] of Object.entries(obj)) {
     if (key !== 'energy')
-      obj[key] = val
+      if (top[key])
+        obj[key] = top[key]
   }
 }
 
