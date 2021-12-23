@@ -1,7 +1,7 @@
 // Durante il conbattimento
 
-import { getMaxTroops } from "./utils";
-import { applyTroopEffect, stages } from "./effects";
+import { getMaxTroops, stages } from "./utils";
+import { applyTroopEffect, applyHeroEffect } from "./effects";
 
 const TURNS_PER_ENERGY_RECOVER = 4;
 
@@ -166,7 +166,14 @@ function applySkills(stage, alice, bob, context) {
 }
 
 function applySkills1(stage, hero, troop, context) {
-
+  for (const code of hero.skills ?? []) {
+    if (!code) continue
+    applyHeroEffect(stage, code, { self: alice, other: bob, ...context })
+  }
+  for (const code of troop.skills ?? []) {
+    if (!code) continue
+    applyTroopEffect(stage, code, { self: bob, other: alice, ...context })
+  }
 }
 
 export function firstTroop({ hero, troops }) {
