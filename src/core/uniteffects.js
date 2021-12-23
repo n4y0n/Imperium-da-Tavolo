@@ -71,7 +71,7 @@ effects[stages.WHILE_DAMAGE] = {
             self.hp += self.damage;
             other.damage += self.damage;
         }
-    }
+    },
     death_blow: {
         cost: 4,
         apply: ({ self, logs, other }) => {
@@ -94,10 +94,10 @@ effects[stages.WHILE_DAMAGE] = {
 }
 
 effects[stages.AFTER_DAMAGE] = {
-    immunity: {
+    deflection: {
         cost: 1,
         apply: ({ self, logs }) => {
-            logs.push(`${self.name} usa immunity annullando ${self.damage}hp di danno [${self.energy - 1}ep]`)
+            logs.push(`${self.name} usa deflection annullando ${self.damage}hp di danno [${self.energy - 1}ep]`)
             self.hp += self.damage;
         }
     },
