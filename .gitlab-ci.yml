@@ -8,6 +8,17 @@ before_script:
   - rm -rf dist
   - CI=false npm install
 
+static:
+  stage: build
+  script:
+    - CI=false npm run dist
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - dist
+  only:
+    - master
+
 pages:
   stage: deploy
   script:
