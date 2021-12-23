@@ -1,0 +1,22 @@
+image: node:10.16.3 # change to match your project's node version
+
+cache:
+  paths:
+    - node_modules/
+
+before_script:
+  - rm -rf dist
+  - CI=false npm install
+
+pages:
+  stage: deploy
+  script:
+    - CI=false npm run dist
+    - rm -rf public
+    - cp dist/index.html dist/404.html dist/assets
+    - mv dist public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
