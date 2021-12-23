@@ -8,13 +8,10 @@ before_script:
   - rm -rf dist
   - CI=false npm install
 
-pages:
+build:
   stage: deploy
   script:
     - CI=false npm run build
-    - rm -rf public
-    - mv dist public
-    - cp public/index.html public/404.html
   artifacts:
     paths:
       - public
