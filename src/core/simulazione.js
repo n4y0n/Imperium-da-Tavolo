@@ -4,6 +4,7 @@ import { getMaxTroops, stages } from "./utils";
 import { applyTroopEffect, applyHeroEffect } from "./effects";
 
 const TURNS_PER_ENERGY_RECOVER = 4;
+const STACK = []
 
 // Effetti
 // Hero Level, Oggetti, Skills (Eroe), Skills (Truppe)
@@ -20,6 +21,16 @@ const TURNS_PER_ENERGY_RECOVER = 4;
 // Eseguo le skill
 // Applico il danno
 
+function pushState(obj) {
+  STACK.push({ ...obj })
+}
+
+function popState(obj) {
+  const top = STACK.pop()
+  for (const [key, val] of Object.entries(top)) {
+    obj[key] = val
+  }
+}
 
 export function scontro({ alice, bob, context }) {
   const iteration = 0
@@ -30,21 +41,35 @@ export function scontro({ alice, bob, context }) {
     context.logs.push(`Scontro tra Alice con ${ahero.name} e Bob con ${bhero.name}`)
 
     // 1 - Hero level (troop hp + 5 * hero Level)
-    if (atroop) atroop.hp + 5 * ahero.level
-    if (btroop) btroop.hp + 5 * bhero.level
+    if (atroop) {
+      atroop['level'] = ahero.level
+      atroop.hp + 5 * ahero.level
+    }
+    if (btroop) {
+      btroop['level'] = bhero.level
+      btroop.hp + 5 * bhero.level
+    }
 
     // 2 - Hero Skills
 
     // 3 - Oggetti
 
     // Se tutti e due hanno truppe
-    if (atroop && btroop) troopvstroop({ atroop, btroop, iteration, ...context })
+    if (atroop && btroop) {
+      troopvstroop({ atroop, btroop, iteration, ...context })
+    }
     // Bob non ha truppe
-    else if (!btroop && atroop) herovstroop({ hero: bhero, troop: atroop, iteration, ...context })
+    else if (!btroop && atroop) {
+      herovstroop({ hero: bhero, troop: atroop, iteration, ...context })
+    }
     // Alice non ha truppe
-    else if (!atroop && btroop) herovstroop({ hero: ahero, troop: btroop, iteration, ...context })
+    else if (!atroop && btroop) {
+      herovstroop({ hero: ahero, troop: btroop, iteration, ...context })
+    }
     // Nessuno dei due ha truppe
-    else herovshero({ ahero, bhero, ...context })
+    else {
+      herovshero({ ahero, bhero, ...context })
+    }
 
     context.logs.push("Fine simulazione!")
     resolve()
@@ -76,10 +101,15 @@ function troopvstroop(context) {
   else
     logs.push(`--------------------------------------------`);
 
-  applySkills(stages.BEFORE_DAMAGE, btroop, atroop, context)
+  pushState(atroop)
+  pushState(btroop)
 
+  applySkills(stages.BEFORE_DAMAGE, btroop, atroop, context)
   computeDamage(btroop, atroop);
   computeDamage(atroop, btroop);
+
+  popState(btroop)
+  popState(atroop)
 
   applySkills(stages.WHILE_DAMAGE, btroop, atroop, context)
 

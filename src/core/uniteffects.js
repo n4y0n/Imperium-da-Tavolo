@@ -17,9 +17,9 @@ effects[stages.BEFORE_DAMAGE] = {
 // Ha a disposizione la variabile `self.damage` con il danno che gli verrà applicato
 effects[stages.WHILE_DAMAGE] = {
     "mirror_damage": {
-        cost: 3,
+        cost: 1,
         apply: ({ self, other, logs }) => {
-            logs.push(`${self.name} usa mirror_damage riflettendo ${self.damage}hp di danno [${self.energy - 3}ep]`)
+            logs.push(`${self.name} usa mirror_damage riflettendo ${self.damage}hp di danno [${self.energy - 1}ep]`)
             self.hp += self.damage;
             other.damage += self.damage;
         }
