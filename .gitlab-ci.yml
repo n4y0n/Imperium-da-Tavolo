@@ -24,7 +24,6 @@ pages:
   script:
     - CI=false npm run build
     - rm -rf public
-    - cp dist/index.html
     - mv dist public
   artifacts:
     paths:
