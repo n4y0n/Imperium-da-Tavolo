@@ -15,3 +15,7 @@ export function getMaxTroops(civilization) {
         default: return 7;
     }
 }
+
+export function truppaCattiva(troop) {
+    return (troop.id === 'britannia#Capi_Normanni' || troop.id === 'gallia#Guerrieri_di_Fand' || troop.id === 'cartagine#Elefanti_da_Guerra')
+}

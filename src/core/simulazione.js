@@ -1,6 +1,6 @@
 // Durante il conbattimento
 
-import { getMaxTroops, stages } from "./utils";
+import { getMaxTroops, stages, truppaCattiva } from "./utils";
 import { applyTroopEffect, applyHeroEffect } from "./effects";
 
 const TURNS_PER_ENERGY_RECOVER = 4;
@@ -44,11 +44,11 @@ export function scontro({ alice, bob, context }) {
     // 1 - Hero level (troop hp + 5 * hero Level)
     if (atroop) {
       atroop['level'] = ahero.level
-      atroop.hp + 5 * ahero.level
+      atroop.hp += 5 * ahero.level
     }
     if (btroop) {
       btroop['level'] = bhero.level
-      btroop.hp + 5 * bhero.level
+      btroop.hp += 5 * bhero.level
     }
 
     // 2 - Hero Skills
@@ -104,9 +104,13 @@ function troopvstroop(context) {
     btroop.energy += 1
   }
 
-  if (context.iteration === 0)
+  if (context.iteration === 1) {
     logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
-  else
+    if (truppaCattiva(atroop) && !truppaCattiva(btroop))
+      btroop.hp *= 4
+    if (!truppaCattiva(atroop) && truppaCattiva(btroop))
+      atroop.hp *= 4
+  } else
     logs.push(`--------------------------------------------`);
 
   pushState(atroop)
@@ -151,7 +155,7 @@ function herovstroop(context) {
     troop.energy += 1
   }
 
-  if (context.iteration === 0) {
+  if (context.iteration === 1) {
     logs.push(`Scontro ${hero.name} contro ${troop.name}`);
     // # - 10 * troop hp if troop vs hero
     troop.hp = troop.hp * 10;
@@ -201,10 +205,8 @@ function herovshero(ctx) {
     bhero.energy += 1
   }
 
-  if (context.iteration === 0) {
+  if (context.iteration === 1) {
     logs.push(`Scontro ${ahero.name} contro ${bhero.name}`);
-    // # - 10 * troop hp if troop vs hero
-    bhero.hp = bhero.hp * 10;
   } else {
     logs.push(`--------------------------------------------`);
   }
