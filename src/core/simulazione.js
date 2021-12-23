@@ -151,12 +151,16 @@ function herovstroop(context) {
     logs.push(`--------------------------------------------`);
   }
 
+  pushState(troop)
+  pushState(hero)
   applySkills1(stages.BEFORE_DAMAGE, troop, hero, context)
 
   computeDamage(troop, hero);
   computeDamage(hero, troop);
 
   applySkills1(stages.WHILE_DAMAGE, troop, hero, context)
+  popState(hero)
+  popState(troop)
 
   logs.push(`${hero.name} [${hero.hp.toString().substring(0, 5)}hp] -> ${troop.name} [${troop.hp.toString().substring(0, 5)}hp] -${troop.damage}hp ${(troop.hp - troop.damage).toString().substring(0, 5)}`)
   logs.push(`${troop.name} [${troop.hp.toString().substring(0, 5)}hp] -> ${hero.name} [${hero.hp.toString().substring(0, 5)}hp] -${hero.damage}hp ${(hero.hp - hero.damage).toString().substring(0, 5)}`)
@@ -170,7 +174,51 @@ function herovstroop(context) {
 
 function herovshero(ctx) {
   const { ahero, bhero, logs } = ctx;
-  logs.push(`Scontro ${ahero.name} contro ${bhero.name}`);
+  if (ahero.hp <= 0 || bhero.hp <= 0) {
+    logs.push(`${ahero.name} ${ahero.hp.toString().substring(0, 5)}hp`);
+    logs.push(`${bhero.name} ${bhero.hp.toString().substring(0, 5)}hp`);
+    if (ahero.hp <= 0 && bhero.hp <= 0) {
+      logs.push("Draw");
+    } else if (ahero.hp <= 0 && !(bhero.hp <= 0)) {
+      logs.push(`${bhero.name} Win`);
+    } else if (bhero.hp <= 0 && !(ahero.hp <= 0)) {
+      logs.push(`${ahero.name} Win`);
+    }
+    return
+  }
+
+  if (context.iteration % TURNS_PER_ENERGY_RECOVER === 0) {
+    ahero.energy += 1
+    bhero.energy += 1
+  }
+
+  if (context.iteration === 0) {
+    logs.push(`Scontro ${ahero.name} contro ${bhero.name}`);
+    // # - 10 * troop hp if troop vs hero
+    bhero.hp = bhero.hp * 10;
+  } else {
+    logs.push(`--------------------------------------------`);
+  }
+
+  pushState(bhero)
+  pushState(ahero)
+  applySkills2(stages.BEFORE_DAMAGE, bhero, ahero, context)
+
+  computeDamage(bhero, ahero);
+  computeDamage(ahero, bhero);
+
+  applySkills2(stages.WHILE_DAMAGE, bhero, ahero, context)
+  popState(ahero)
+  popState(bhero)
+
+  logs.push(`${ahero.name} [${ahero.hp.toString().substring(0, 5)}hp] -> ${bhero.name} [${bhero.hp.toString().substring(0, 5)}hp] -${bhero.damage}hp ${(bhero.hp - bhero.damage).toString().substring(0, 5)}`)
+  logs.push(`${bhero.name} [${bhero.hp.toString().substring(0, 5)}hp] -> ${ahero.name} [${ahero.hp.toString().substring(0, 5)}hp] -${ahero.damage}hp ${(ahero.hp - ahero.damage).toString().substring(0, 5)}`)
+  ahero.hp -= ahero.damage;
+  bhero.hp -= bhero.damage;
+
+  applySkills2(stages.AFTER_DAMAGE, bhero, ahero, context)
+  context.iteration += 1
+  return herovstroop(context)
 
 }
 
@@ -198,11 +246,22 @@ function applySkills(stage, alice, bob, context) {
 function applySkills1(stage, hero, troop, context) {
   for (const code of hero.skills ?? []) {
     if (!code) continue
-    applyHeroEffect(stage, code, { self: alice, other: bob, ...context })
+    applyHeroEffect(stage, code, { self: hero, other: troop, ...context })
   }
   for (const code of troop.skills ?? []) {
     if (!code) continue
-    applyTroopEffect(stage, code, { self: bob, other: alice, ...context })
+    applyTroopEffect(stage, code, { self: troop, other: hero, ...context })
+  }
+}
+
+function applySkills2(stage, ahero, bhero, context) {
+  for (const code of ahero.skills ?? []) {
+    if (!code) continue
+    applyHeroEffect(stage, code, { self: ahero, other: bhero, ...context })
+  }
+  for (const code of bhero.skills ?? []) {
+    if (!code) continue
+    applyHeroEffect(stage, code, { self: bhero, other: ahero, ...context })
   }
 }
 
