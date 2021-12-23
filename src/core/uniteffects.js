@@ -71,6 +71,14 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
             return true;
         }
     },
+    cripple_off: {
+        cost: 1,
+        apply: ({ self, logs, other }) => {
+            logs.push(`${self.name} usa cripple_off e manda a 0 l'energia di ${other.name}`);
+            other.energy = 0;
+            return true;
+        }
+    },
 }
 
 // Ha a disposizione la variabile `self.damage` con il danno che gli verrà applicato
@@ -101,6 +109,26 @@ effects[stages.AFTER_DAMAGE_COMPUTE] = {
             const new_damage = other.maxHp * 0.1;
             logs.push(`${self.name} usa bleeding attack ed infligge ${new_damage} danni.`)
             other.damage += new_damage;
+            return true;
+        }
+    },
+    power_strike: {
+        cost: 4,
+        apply: ({ self, logs, other }) => {
+            if(other.isHero || self.hp <= other.hp * 2)
+                return;
+            logs.push(`${self.name} usa bleeding attack ed infligge ${new_damage} danni.`)
+            other.damage += other.hp + 1;
+            return true;
+        }
+    },
+    charge: {
+        cost: 0,
+        apply: ({ self, logs, other }) => {
+            if(context.iteration != 1)
+                return;        
+            logs.push(`${self.name} usa charge ed infligge: ${self.atk * 8} danni.`);
+            other.damage = self.atk * 8;
             return true;
         }
     },
@@ -162,6 +190,8 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         apply: ({ self, logs }) => {
             logs.push(`${self.name} usa determination e ripristina 1 punto energia.`)
             self.energy += 1;
+            if(self.energy > self.maxEnergy)
+                self.energy = self.maxEnergy;
             return true;
         }
     },
@@ -170,16 +200,28 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         apply: ({ self, logs }) => {
             logs.push(`${self.name} usa combat_skill e ripristina 1 punto energia.`)
             self.energy += 1;
+            if(self.energy > self.maxEnergy)
+                self.energy = self.maxEnergy;
             return true;
         }
     },
     drain: {
-        cost: 0,
+        cost: 1,
         apply: ({ self, logs, other }) => {
             other.energy -= 2;
             if (other.energy < 0)
                 other.energy = 0;
             logs.push(`${self.name} usa drain e riduce di 2 l'energia dell'avversario. ${other.energy}`)
+            return true;
+        }
+    },
+    ferocity: {
+        cost: 0,
+        apply: ({ self, logs, other }) => {
+            if(other.hp > 0)
+                return;
+            self.energy = self.maxEnergy;
+            logs.push(`${self.name} usa ferocity e ripristina tutta l'energia.`);
             return true;
         }
     },
