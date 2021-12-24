@@ -71,8 +71,8 @@ function iniziaScontro(alice, bob) {
   const btroop = playerFighter(bob)
 
   if (playerDead(alice) || playerDead(bob)) {
-    logs.push(`${atroop.name} ${atroop.hp.toString().substring(0, 5)}hp`);
-    logs.push(`${btroop.name} ${btroop.hp.toString().substring(0, 5)}hp`);
+    logs.push(`${atroop.name} ${atroop.hp.toFixed(2)}hp`);
+    logs.push(`${btroop.name} ${btroop.hp.toFixed(2)}hp`);
     if (playerDead(alice) && playerDead(bob)) {
       logs.push("Draw");
     } else if (playerDead(alice) && !playerDead(bob)) {
@@ -136,8 +136,8 @@ function turn({ self, enemy }) {
 
   applySkills(stages.AFTER_DAMAGE_COMPUTE, enemy, self, this)
 
-  logs.push(`${self.name} [${self.hp.toString().substring(0, 5)}hp] -> ${enemy.name} [${enemy.hp.toString().substring(0, 5)}hp] -${enemy.damage}hp ${(enemy.hp - enemy.damage).toString().substring(0, 5)}`)
-  logs.push(`${enemy.name} [${enemy.hp.toString().substring(0, 5)}hp] -> ${self.name} [${self.hp.toString().substring(0, 5)}hp] -${self.damage}hp ${(self.hp - self.damage).toString().substring(0, 5)}`)
+  logs.push(`${self.name} [${self.hp.toFixed(2)}hp] -> ${enemy.name} [${enemy.hp.toFixed(2)}hp] -${enemy.damage}hp ${(enemy.hp - enemy.damage).toFixed(2)}`)
+  logs.push(`${enemy.name} [${enemy.hp.toFixed(2)}hp] -> ${self.name} [${self.hp.toFixed(2)}hp] -${self.damage}hp ${(self.hp - self.damage).toFixed(2)}`)
   self.hp -= self.damage;
   enemy.hp -= enemy.damage;
 
