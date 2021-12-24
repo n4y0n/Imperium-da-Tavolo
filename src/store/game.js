@@ -9,13 +9,15 @@ const initialState = {
         hero: null,
         troops: {},
         civ: defCiv,
-        troopPointer: 0
+        troopPointer: 0,
+        troopPointerState: 'auto',
     },
     p2: {
         hero: null,
         troops: {},
         civ: defCiv,
         troopPointer: 0,
+        troopPointerState: 'auto',
     },
     simulation: {
         p1: null,
@@ -31,37 +33,16 @@ const slice = createSlice({
     initialState: { ...initialState },
     reducers: {
         selectHero: (state, { payload: { player, hero } }) => {
-            switch (player) {
-                case 'p1':
-                    state.p1.hero = { ...hero }
-                    break;
-                case 'p2':
-                    state.p2.hero = { ...hero }
-                    break;
-            }
+            state[player].hero = hero
         },
         selectCiv: (state, { payload: { player, civ } }) => {
-            switch (player) {
-                case 'p1':
-                    state.p1.civ = civ
-                    break;
-                case 'p2':
-                    state.p2.civ = civ
-                    break;
-            }
+            state[player].civ = civ
         },
         reset: (state, { payload: { player } }) => {
-            switch (player) {
-                case 'p1':
-                    state.p1 = { hero: null, civ: defCiv, troops: {} }
-                    break;
-                case 'p2':
-                    state.p2 = { hero: null, civ: defCiv, troops: {} }
-                    break;
-                default:
-                    state = { ...initialState }
-                    break;
-            }
+            if (player)
+                state[player] = { ...initialState[player] }
+            else
+                state = { ...initialState }
         },
         resetSimulation: state => {
             state.p1.troops = Object.entries(state.p1.troops).filter(e => e[1].hp > 0).reduce((o, n) => { o[n[0]] = n[1]; return o }, {})
@@ -72,58 +53,26 @@ const slice = createSlice({
 
             state.simulation = { ...initialState.simulation }
         },
-        setTroop: (state, { payload: { player, position, troop } }) => {
-            if (position !== "auto") {
-                switch (player) {
-                    case 'p1':
-                        state.p1.troops[position] = troop
-                        break;
-                    case 'p2':
-                        state.p2.troops[state] = troop
-                        break;
-                }
+        setTroop: (state, { payload: { player, troop } }) => {
+            if (state[player].troopPointerState !== "auto") {
+                state[player].troops[state[player].troopPointer] = troop
             } else {
-                switch (player) {
-                    case 'p1':
-                        state.p1.troops[state.p1.troopPointer] = troop
-                        state.p1.troopPointer = (state.p1.troopPointer + 1) % getMaxTroops(state.p1.civ)
-                        break;
-                    case 'p2':
-                        state.p2.troops[state.p2.troopPointer] = troop
-                        state.p2.troopPointer = (state.p2.troopPointer + 1) % getMaxTroops(state.p2.civ)
-                        break;
-                }
+                state[player].troops[state[player].troopPointer] = troop
+                state[player].troopPointer = (state[player].troopPointer + 1) % getMaxTroops(state[player].civ)
             }
+        },
+        setTroopPointer: (state, { payload: { pointerChange, player, position } }) => {
+            state[player].troopPointer = position;
+            state[player].troopPointerState = pointerChange;
         },
         setLevel: (state, { payload: { player, level } }) => {
-            switch (player) {
-                case 'p1':
-                    state.p1.hero.level = level
-                    break;
-                case 'p2':
-                    state.p2.hero.level = level
-                    break;
-            }
+            state[player].hero.level = level
         },
         setSkills: (state, { payload: { player, skills } }) => {
-            switch (player) {
-                case 'p1':
-                    state.p1.hero.skills = skills
-                    break;
-                case 'p2':
-                    state.p2.hero.skills = skills
-                    break;
-            }
+            state[player].hero.skills = skills
         },
         setItems: (state, { payload: { player, items } }) => {
-            switch (player) {
-                case 'p1':
-                    state.p1.hero.items = items
-                    break;
-                case 'p2':
-                    state.p2.hero.items = items
-                    break;
-            }
+            state[player].hero.items = items
         },
     },
     extraReducers: builder => {
@@ -133,8 +82,8 @@ const slice = createSlice({
                 state.simulation.error = null;
             })
             .addCase(simulate.fulfilled, (state, { payload }) => {
-                state.simulation.inProgress = false;
-                state.simulation.results = payload.logs;
+                // state.simulation.inProgress = false;
+                state.simulation.logs = payload.logs;
                 state.p1.hero = payload.p1.hero;
                 state.p2.hero = payload.p2.hero;
 
@@ -148,7 +97,7 @@ const slice = createSlice({
     }
 })
 
-export const { selectCiv, selectHero, reset, setTroop, resetSimulation, setLevel, setItems, setSkills } = slice.actions
+export const { selectCiv, selectHero, reset, setTroop, resetSimulation, setLevel, setItems, setSkills, setTroopPointer } = slice.actions
 
 export const simulate = createAsyncThunk('game/simulate', async (arg, { getState, dispatch }) => {
     // Player1 = alice

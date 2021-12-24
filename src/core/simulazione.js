@@ -109,9 +109,9 @@ function iniziaScontro(alice, bob) {
   if (playerDead(alice) && playerDead(bob)) {
     logs.push("Draw");
   } else if (playerDead(alice) && !playerDead(bob)) {
-    logs.push(`${btroop.name} Win`);
+    logs.push(`${bob.hero.name} Win`);
   } else if (!playerDead(alice) && playerDead(bob)) {
-    logs.push(`${atroop.name} Win`);
+    logs.push(`${alice.hero.name} Win`);
   }
 }
 

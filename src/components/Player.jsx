@@ -3,7 +3,7 @@ import TroopsComp from './Troops'
 import TroopSelectComp from './TroopSelectComp'
 import HeroSelectComp from './HeroSelectComp'
 import { useSelector, useDispatch } from 'react-redux'
-import { selectHero, selectCiv, reset, setTroop } from '../store/game'
+import { selectHero, selectCiv, reset } from '../store/game'
 
 export default function PlayerComp({ player }) {
   const dispatch = useDispatch()
@@ -30,7 +30,7 @@ export default function PlayerComp({ player }) {
         <hr />
         <TroopsComp player={player} troops={troops} />
         <hr />
-        <TroopSelectComp player={player} onChange={({ position, troop }) => dispatch(setTroop({ player, position, troop }))} hero={hero} />
+        <TroopSelectComp player={player} hero={hero} />
       </div>
     </div>
   )
