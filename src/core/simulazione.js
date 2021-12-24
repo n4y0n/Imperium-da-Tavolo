@@ -136,8 +136,8 @@ function turn({ self, enemy }) {
 
   applySkills(stages.AFTER_DAMAGE_COMPUTE, enemy, self, this)
 
-  logs.push(`${self.name} [${self.hp.toFixed(2)}hp] -> ${enemy.name} [${enemy.hp.toFixed(2)}hp] -${enemy.damage}hp ${(enemy.hp - enemy.damage).toFixed(2)}`)
-  logs.push(`${enemy.name} [${enemy.hp.toFixed(2)}hp] -> ${self.name} [${self.hp.toFixed(2)}hp] -${self.damage}hp ${(self.hp - self.damage).toFixed(2)}`)
+  logs.push(`${self.name} [${self.hp.toFixed(2)}hp] -> ${enemy.name} [${enemy.hp.toFixed(2)}hp] -${enemy.damage.toFixed(2)}hp ${(enemy.hp - enemy.damage).toFixed(2)}`)
+  logs.push(`${enemy.name} [${enemy.hp.toFixed(2)}hp] -> ${self.name} [${self.hp.toFixed(2)}hp] -${self.damage.toFixed(2)}hp ${(self.hp - self.damage).toFixed(2)}`)
   self.hp -= self.damage;
   enemy.hp -= enemy.damage;
 

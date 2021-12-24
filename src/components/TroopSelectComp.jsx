@@ -46,8 +46,8 @@ function TroopSelectComp({ hero, onChange }) {
     posizioni.push(
       (
         <span onClick={() => setPos(p)} key={"posizione" + hero.name + p}>
-          <label htmlFor={"posizione" + hero.name + p}> P{p} </label>
-          <input id={"posizione" + hero.name + p} name={"posizione" + hero.name} type="radio" /> |
+          <span className='align-baseline'>{p}: </span>
+          <input className='align-baseline' id={"posizione" + hero.name + p} name={"posizione" + hero.name} type="radio" /> |
         </span>
       )
     )

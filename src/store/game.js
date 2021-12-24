@@ -65,10 +65,10 @@ const slice = createSlice({
             state.p1.troops = Object.entries(state.p1.troops).filter(e => e[1].hp > 0).reduce((o, n) => { o[n[0]] = n[1]; return o }, {})
             state.p2.troops = Object.entries(state.p2.troops).filter(e => e[1].hp > 0).reduce((o, n) => { o[n[0]] = n[1]; return o }, {})
 
+            if (state.p1.hero.hp <= 0) state.p1.hero = null
+            if (state.p2.hero.hp <= 0) state.p2.hero = null
+
             state.simulation = { ...initialState.simulation }
-        },
-        updateSimulation: (state, { payload }) => {
-            state.simulation = { ...payload }
         },
         setTroop: (state, { payload: { player, position, troop } }) => {
             switch (player) {
@@ -89,7 +89,27 @@ const slice = createSlice({
                     state.p2.hero.level = level
                     break;
             }
-        }
+        },
+        setSkills: (state, { payload: { player, skills } }) => {
+            switch (player) {
+                case 'p1':
+                    state.p1.hero.skills = skills
+                    break;
+                case 'p2':
+                    state.p2.hero.skills = skills
+                    break;
+            }
+        },
+        setItems: (state, { payload: { player, items } }) => {
+            switch (player) {
+                case 'p1':
+                    state.p1.hero.items = items
+                    break;
+                case 'p2':
+                    state.p2.hero.items = items
+                    break;
+            }
+        },
     },
     extraReducers: builder => {
         builder
@@ -113,7 +133,7 @@ const slice = createSlice({
     }
 })
 
-export const { selectCiv, selectHero, reset, setTroop, updateSimulation, resetSimulation, setLevel } = slice.actions
+export const { selectCiv, selectHero, reset, setTroop, resetSimulation, setLevel, setItems, setSkills } = slice.actions
 
 export const simulate = createAsyncThunk('game/simulate', async (arg, { getState, dispatch }) => {
     // Player1 = alice
