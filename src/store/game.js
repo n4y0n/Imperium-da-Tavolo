@@ -144,7 +144,7 @@ export const simulate = createAsyncThunk('game/simulate', async (arg, { getState
     const context = lossyCopy(simulation) 
     context["p1"] = lossyCopy(p1)
     context["p2"] = lossyCopy(p2)
-    context["firstBlood"] = 'alice' // aka "p1"
+    // context["firstBlood"] = 'alice' // aka "p1"
     context["logs"] = []
     context.logs.push = function (val) {
         console.log(val)

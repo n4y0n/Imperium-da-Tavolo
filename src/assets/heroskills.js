@@ -7,7 +7,9 @@ import battlecry from './skill_icon_hero/battlecry.png'
 import ceasefire from './skill_icon_hero/ceasefire.png'
 import charge from './skill_icon_hero/charge.png'
 import defensivecry from './skill_icon_hero/defensivecry.png'
-import divine_grace from './skill_icon_hero/divine_grace.png'
+import divinegrace from './skill_icon_hero/divine_grace.png'
+// import concealment from './skill_icon_hero/concealment.png'
+import concealment from './anonymous.jpg'
 import dodge from './skill_icon_hero/dodge.png'
 import epicarmor from './skill_icon_hero/epicarmor.png'
 import epicattack from './skill_icon_hero/epicattack.png'
@@ -21,18 +23,19 @@ import recovery from './skill_icon_hero/recovery.png'
 import scout from './skill_icon_hero/scout.png'
 import survival from './skill_icon_hero/survival.png'
 import teamattack from './skill_icon_hero/teamattack.png'
-import teamdefence from './skill_icon_hero/teamdefence.png'
+import teamdefense from './skill_icon_hero/teamdefence.png'
 import vigor from './skill_icon_hero/vigor.png'
 import wisdom from './skill_icon_hero/wisdom.png'
 
 export const images = {
     administration,
+    concealment,
     assault,
     battlecry,
     ceasefire,
     charge,
     defensivecry,
-    divine_grace,
+    divinegrace,
     dodge,
     epicarmor,
     epicattack,
@@ -46,7 +49,7 @@ export const images = {
     scout,
     survival,
     teamattack,
-    teamdefence,
+    teamdefense,
     vigor,
     wisdom
 }

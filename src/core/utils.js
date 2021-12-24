@@ -37,14 +37,6 @@ export function playerFighter(player) {
     return troop
 }
 
-export function recoverEnergy(player, quantity) {
-    const troop = playerFighter(player)
-    troop.energy = quantity
-    if (troop.energy > troop.maxEnergy) {
-        troop.energy = troop.maxEnergy
-    }
-}
-
 export function pushValue(val) {
     return TEMP_STACK.push(lossyCopy(val))
 }

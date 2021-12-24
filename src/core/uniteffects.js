@@ -1,4 +1,4 @@
-import { recoverEnergy, stages } from "./utils"
+import { stages } from "./utils"
 
 const effects = {}
 
@@ -161,7 +161,10 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         cost: 0,
         apply: ({ self, logs }) => {
             logs.push(`${self.name} usa determination e ripristina 1 punto energia.`)
-            recoverEnergy(self, 1);
+            self.energy++;
+            if (self.energy > self.maxEnergy) {
+                self.energy = self.maxEnergy
+            }
             return true;
         }
     },
@@ -169,14 +172,20 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         cost: 0,
         apply: ({ self, logs }) => {
             logs.push(`${self.name} usa combat_skill e ripristina 1 punto energia.`)
-            recoverEnergy(self, 1);
+            self.energy++;
+            if (self.energy > self.maxEnergy) {
+                self.energy = self.maxEnergy
+            }
             return true;
         }
     },
     drain: {
         cost: 0,
         apply: ({ self, logs, other }) => {
-            recoverEnergy(other, -2);
+            self.energy -= 2;
+            if (self.energy < 0) {
+                self.energy = 0
+            }
             logs.push(`${self.name} usa drain e riduce di 2 l'energia dell'avversario. ${other.energy.toFixed(2)}`)
             return true;
         }

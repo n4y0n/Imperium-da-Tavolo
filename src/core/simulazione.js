@@ -1,6 +1,6 @@
 // Durante il conbattimento
 
-import { getMaxTroops, playerDead, popValue, pushValue, stages, truppaCattiva, playerFighter, recoverEnergy } from "./utils";
+import { getMaxTroops, playerDead, popValue, pushValue, stages, truppaCattiva, playerFighter } from "./utils";
 import { applyEffect } from "./effects";
 
 const TURNS_PER_ENERGY_RECOVER = 4;
@@ -55,7 +55,7 @@ export function scontro(alice, bob) {
           applyEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...this })
 
       // Se tutti e due hanno truppe
-      iniziaScontro.call({ ...this, iteration, turn: this.firstBlood }, alice, bob)
+      iniziaScontro.call({ ...this, iteration }, alice, bob)
 
       this.logs.push("Fine simulazione!")
       resolve()
@@ -70,78 +70,72 @@ function iniziaScontro(alice, bob) {
   const atroop = playerFighter(alice)
   const btroop = playerFighter(bob)
 
-  if (playerDead(alice) || playerDead(bob)) {
-    logs.push(`${atroop.name} ${atroop.hp.toFixed(2)}hp`);
-    logs.push(`${btroop.name} ${btroop.hp.toFixed(2)}hp`);
-    if (playerDead(alice) && playerDead(bob)) {
-      logs.push("Draw");
-    } else if (playerDead(alice) && !playerDead(bob)) {
-      logs.push(`${btroop.name} Win`);
-    } else if (!playerDead(alice) && playerDead(bob)) {
-      logs.push(`${atroop.name} Win`);
+  do {
+    if (this.iteration === 1) {
+      logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
+      if (truppaCattiva(btroop) && !truppaCattiva(atroop) && !atroop.isHero) {
+        atroop.hp *= 4
+      }
+      if (!truppaCattiva(btroop) && truppaCattiva(atroop) && !btroop.isHero) {
+        btroop.hp *= 4
+      }
+      if (atroop.isHero && !btroop.isHero && !truppaCattiva(btroop)) {
+        btroop.hp *= 10
+      }
+      if (!atroop.isHero && btroop.isHero && !truppaCattiva(atroop)) {
+        atroop.hp *= 10
+      }
+    } else {
+      logs.push(`--------------------------------------------`);
     }
-    return
-  }
 
-  if (this.iteration === 1) {
-    logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
-    if (truppaCattiva(btroop) && !truppaCattiva(atroop) && !atroop.isHero) {
-      atroop.hp *= 4
-    }
-    if (!truppaCattiva(btroop) && truppaCattiva(atroop) && !btroop.isHero) {
-      btroop.hp *= 4
-    }
-    if (atroop.isHero && !btroop.isHero && !truppaCattiva(btroop)) {
-      btroop.hp *= 10
-    }
-    if (!atroop.isHero && btroop.isHero && !truppaCattiva(atroop)) {
-      atroop.hp *= 10
-    }
-  } else {
-    logs.push(`--------------------------------------------`);
-  }
+    if (this.iteration % TURNS_PER_ENERGY_RECOVER === 0) {
+      atroop.energy++
+      btroop.energy++
 
+      if (atroop.energy > atroop.maxEnergy) {
+        atroop.energy = atroop.maxEnergy
+      }
+      if (btroop.energy > btroop.maxEnergy) {
+        atroop.energy = atroop.maxEnergy
+      }
+    }
 
-  if (this.iteration % TURNS_PER_ENERGY_RECOVER === 0) {
-    recoverEnergy(alice, 1)
-    recoverEnergy(bob, 1)
-  }
-
-  if (this.turn === 'alice') {
-    turn.call(this, { self: atroop, enemy: btroop })
-    this.turn = 'bob';
+    turn(this, { self: atroop, enemy: btroop })
     this.iteration++;
-    return iniziaScontro.call(this, alice, bob)
+  } while (!playerDead(alice) && !playerDead(bob))
+
+  logs.push(`${atroop.name} ${atroop.hp.toFixed(2)}hp`);
+  logs.push(`${btroop.name} ${btroop.hp.toFixed(2)}hp`);
+  if (playerDead(alice) && playerDead(bob)) {
+    logs.push("Draw");
+  } else if (playerDead(alice) && !playerDead(bob)) {
+    logs.push(`${btroop.name} Win`);
+  } else if (!playerDead(alice) && playerDead(bob)) {
+    logs.push(`${atroop.name} Win`);
   }
-  if (this.turn === 'bob') {
-    turn.call(this, { self: btroop, enemy: atroop })
-    this.turn = 'alice';
-    this.iteration++;
-    return iniziaScontro.call(this, alice, bob)
-  }
-  throw new Error(`Turno non eseguito... tocherebbe a ${this.turn}`)
 }
 
-function turn({ self, enemy }) {
-  const logs = this.logs;
+function turn(ctx, { self, enemy }) {
+  const logs = ctx.logs;
   pushValue(self.atk)
   pushValue(self.def)
   pushValue(enemy.atk)
   pushValue(enemy.def)
 
-  applySkills(stages.BEFORE_DAMAGE_COMPUTE, enemy, self, this)
+  applySkills(stages.BEFORE_DAMAGE_COMPUTE, enemy, self, ctx)
 
   computeDamage(enemy, self);
   computeDamage(self, enemy);
 
-  applySkills(stages.AFTER_DAMAGE_COMPUTE, enemy, self, this)
+  applySkills(stages.AFTER_DAMAGE_COMPUTE, enemy, self, ctx)
 
   logs.push(`${self.name} [${self.hp.toFixed(2)}hp] -> ${enemy.name} [${enemy.hp.toFixed(2)}hp] -${enemy.damage.toFixed(2)}hp ${(enemy.hp - enemy.damage).toFixed(2)}`)
   logs.push(`${enemy.name} [${enemy.hp.toFixed(2)}hp] -> ${self.name} [${self.hp.toFixed(2)}hp] -${self.damage.toFixed(2)}hp ${(self.hp - self.damage).toFixed(2)}`)
   self.hp -= self.damage;
   enemy.hp -= enemy.damage;
 
-  applySkills(stages.AFTER_DAMAGE_APPLY, enemy, self, this)
+  applySkills(stages.AFTER_DAMAGE_APPLY, enemy, self, ctx)
 
   enemy.def = popValue()
   enemy.atk = popValue()
@@ -162,11 +156,11 @@ function computeDamage(self, other) {
 }
 
 function applySkills(stage, atroop, btroop, context) {
-  for (const code of atroop.skills ?? []) {
+  for (const code of atroop.skills) {
     if (!code) continue
     applyEffect(stage, code, { self: atroop, other: btroop, ...context })
   }
-  for (const code of btroop.skills ?? []) {
+  for (const code of btroop.skills) {
     if (!code) continue
     applyEffect(stage, code, { self: btroop, other: atroop, ...context })
   }
