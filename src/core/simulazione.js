@@ -85,10 +85,17 @@ function iniziaScontro(alice, bob) {
 
   if (this.iteration === 1) {
     logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
-    if (truppaCattiva(alice) && !truppaCattiva(bob)) {
-      bob.hp *= 4
-    } if (!truppaCattiva(alice) && truppaCattiva(bob)) {
-      alice.hp *= 4
+    if (truppaCattiva(btroop) && !truppaCattiva(atroop) && !atroop.isHero) {
+      atroop.hp *= 4
+    }
+    if (!truppaCattiva(btroop) && truppaCattiva(atroop) && !btroop.isHero) {
+      btroop.hp *= 4
+    }
+    if (atroop.isHero && !btroop.isHero && !truppaCattiva(btroop)) {
+      btroop.hp *= 10
+    }
+    if (!atroop.isHero && btroop.isHero && !truppaCattiva(atroop)) {
+      atroop.hp *= 10
     }
   } else {
     logs.push(`--------------------------------------------`);
