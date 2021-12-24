@@ -5,6 +5,7 @@ export const stages = {
     BEFORE_DAMAGE_COMPUTE: 'before_damage#',
     AFTER_DAMAGE_COMPUTE: 'while_damage#',
     AFTER_DAMAGE_APPLY: 'after_damage#',
+    REAR_EFFECT: 'rear_effect#',
 }
 
 export const actors = {

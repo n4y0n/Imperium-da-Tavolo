@@ -127,7 +127,7 @@ function turn(ctx, { alice, bob }) {
   pushValue(enemy.atk)
   pushValue(enemy.def)
 
-  applySkills(stages.BEFORE_DAMAGE_COMPUTE, enemy, self, ctx)
+  applySkills(stages.BEFORE_DAMAGE_COMPUTE, alice, bob, ctx)
 
   computeDamage(enemy, self);
   computeDamage(self, enemy);
@@ -135,7 +135,7 @@ function turn(ctx, { alice, bob }) {
   computeRearDamage(bob, alice)
   computeRearDamage(alice, bob)
 
-  applySkills(stages.AFTER_DAMAGE_COMPUTE, enemy, self, ctx)
+  applySkills(stages.AFTER_DAMAGE_COMPUTE, alice, bob, ctx)
 
   logs.push(`${self.name} [${self.hp.toFixed(2)}hp] -> ${enemy.name} [${enemy.hp.toFixed(2)}hp] -${enemy.damage.toFixed(2)}hp ${(enemy.hp - enemy.damage).toFixed(2)}`)
   logs.push(`${enemy.name} [${enemy.hp.toFixed(2)}hp] -> ${self.name} [${self.hp.toFixed(2)}hp] -${self.damage.toFixed(2)}hp ${(self.hp - self.damage).toFixed(2)}`)
@@ -143,7 +143,7 @@ function turn(ctx, { alice, bob }) {
   self.hp -= self.damage;
   enemy.hp -= enemy.damage;
 
-  applySkills(stages.AFTER_DAMAGE_APPLY, enemy, self, ctx)
+  applySkills(stages.AFTER_DAMAGE_APPLY, alice, bob, ctx)
 
   enemy.def = popValue()
   enemy.atk = popValue()
@@ -163,19 +163,21 @@ function computeDamage(self, other) {
 }
 
 function computeRearDamage(self, other) {
-  for(const rear of self.rears) {
+  for (const rear of self.rears) {
     computeDamage(rear, playerFighter(other))
   }
 }
 
-function applySkills(stage, atroop, btroop, context) {
+function applySkills(stage, alice, bob, context) {
+  const atroop = playerFighter(alice)
+  const btroop = playerFighter(bob)
   for (const code of atroop.skills) {
     if (!code) continue
-    applyEffect(stage, code, { self: atroop, other: btroop, ...context })
+    applyEffect(stage, code, { self: atroop, selfPlayer: alice, other: btroop, ...context })
   }
   for (const code of btroop.skills) {
     if (!code) continue
-    applyEffect(stage, code, { self: btroop, other: atroop, ...context })
+    applyEffect(stage, code, { self: btroop, selfPlayer: bob, other: atroop, ...context })
   }
 }
 
