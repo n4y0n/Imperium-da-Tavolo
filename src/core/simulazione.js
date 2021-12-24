@@ -132,6 +132,8 @@ function turn(ctx, { alice, bob }) {
   computeDamage(enemy, self);
   computeDamage(self, enemy);
 
+  applySkills(stages.BEFORE_REAR_DAMAGE_COMPUTE, alice, bob, ctx)
+
   computeRearDamage(bob, alice)
   computeRearDamage(alice, bob)
 
@@ -144,6 +146,7 @@ function turn(ctx, { alice, bob }) {
   enemy.hp -= enemy.damage;
 
   applySkills(stages.AFTER_DAMAGE_APPLY, alice, bob, ctx)
+  applySkills(stages.REAR_EFFECT, alice, bob, ctx)
 
   enemy.def = popValue()
   enemy.atk = popValue()
