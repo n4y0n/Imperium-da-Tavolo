@@ -1,11 +1,11 @@
 import heroes from '../assets/heroes'
-import anon from '../assets/anonymous.jpg'
+import { getHeroImage } from '../core/assets'
 
 function HeroItem({ hero, onChange }) {
     return (
         <li className='cursor-pointer min-w-full shadow-xl hover:shadow-lg' key={hero.name + hero.civ} onClick={() => onChange?.({ ...hero })}>
             <div className='flex justify-start p-1 gap-2'>
-                <img width={80} src={anon} className='' />
+                <img width={80} src={getHeroImage(hero.image)} className='' />
                 {hero.name.split('_').join(' ')}
             </div>
         </li>
