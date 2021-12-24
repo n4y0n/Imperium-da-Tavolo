@@ -7,7 +7,7 @@ export default function HeroSkillPanel({ player, hero }) {
 
     return (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(40px,1fr))] gap-3 p-2">
-            {Object.entries(heroskills).map(([name, skill]) => <img className='cursor-pointer' title={skill.description} key={skill.id + hero.id} src={getHeroSkillImage(name)} alt={skill.name} />)}
+            {Object.entries(heroskills).sort(([a, b], [c, d]) => b.name <= d.name ? -1 : 1).map(([name, skill]) => <img className='cursor-pointer' title={skill.description} key={skill.id + hero.id} src={getHeroSkillImage(name)} alt={skill.name} />)}
         </div>
     )
 }
