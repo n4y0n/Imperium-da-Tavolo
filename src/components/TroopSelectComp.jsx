@@ -1,6 +1,7 @@
 import units from '../assets/units'
 import { useEffect, useState } from 'react';
 import { getUnitImage } from '../core/assets'
+import { useSelector } from 'react-redux';
 
 function UnitaDisponibili({ civ, onSelected }) {
   if (!civ) return null
@@ -35,9 +36,10 @@ function UnitaDisponibili({ civ, onSelected }) {
   )
 }
 
-function TroopSelectComp({ hero, onChange }) {
+function TroopSelectComp({ hero, onChange, player }) {
   const [civ, setCiv] = useState(hero.civ)
-  const [pos, setPos] = useState(0)
+  const [pos, setPos] = useState("auto")
+
   const posizioni = []
 
   useEffect(() => setCiv(hero.civ), [])
@@ -45,13 +47,20 @@ function TroopSelectComp({ hero, onChange }) {
   for (let p = 0; p < hero.maxTroops; p++) {
     posizioni.push(
       (
-        <span onClick={() => setPos(p)} key={"posizione" + hero.name + p}>
+        <span key={"posizione" + hero.name + p}>
           <span className='align-baseline'>{p}: </span>
-          <input className='align-baseline' id={"posizione" + hero.name + p} name={"posizione" + hero.name} type="radio" /> |
+          <input className='align-baseline' onChange={() => setPos(p)} id={"posizione" + hero.name + p} checked={pos === p} name={"posizione" + hero.name} type="radio" /> |
         </span>
       )
     )
   }
+
+  posizioni.push((
+    <span key={"posizione" + hero.name + "4000" + player}>
+      <span className='align-baseline'>AUTO: </span>
+      <input className='align-baseline' onChange={() => setPos("auto")} checked={pos === 'auto'} id={"posizione" + hero.name + "4000" + player} name={"posizione" + hero.name} type="radio" /> |
+    </span>
+  ))
 
   const addTroop = (position, troop) => {
     onChange?.({ position, troop })

@@ -1,19 +1,21 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import heroes from '../assets/heroes'
-import { scontro, firstTroop } from '../core/simulazione'
-import { lossyCopy } from "../core/utils"
+import { scontro, firstTroop, rearTroops } from '../core/simulazione'
+import { getMaxTroops, lossyCopy } from "../core/utils"
 const [defCiv, ...other] = Object.keys(heroes)
 
 const initialState = {
     p1: {
         hero: null,
         troops: {},
-        civ: defCiv
+        civ: defCiv,
+        troopPointer: 0
     },
     p2: {
         hero: null,
         troops: {},
-        civ: defCiv
+        civ: defCiv,
+        troopPointer: 0,
     },
     simulation: {
         p1: null,
@@ -21,7 +23,7 @@ const initialState = {
         inProgress: false,
         error: null,
         results: [],
-    }
+    },
 }
 
 const slice = createSlice({
@@ -71,13 +73,26 @@ const slice = createSlice({
             state.simulation = { ...initialState.simulation }
         },
         setTroop: (state, { payload: { player, position, troop } }) => {
-            switch (player) {
-                case 'p1':
-                    state.p1.troops = { ...state.p1.troops, [position]: { ...troop } }
-                    break;
-                case 'p2':
-                    state.p2.troops = { ...state.p2.troops, [position]: { ...troop } }
-                    break;
+            if (position !== "auto") {
+                switch (player) {
+                    case 'p1':
+                        state.p1.troops[position] = troop
+                        break;
+                    case 'p2':
+                        state.p2.troops[state] = troop
+                        break;
+                }
+            } else {
+                switch (player) {
+                    case 'p1':
+                        state.p1.troops[state.p1.troopPointer] = troop
+                        state.p1.troopPointer = (state.p1.troopPointer + 1) % getMaxTroops(state.p1.civ)
+                        break;
+                    case 'p2':
+                        state.p2.troops[state.p2.troopPointer] = troop
+                        state.p2.troopPointer = (state.p2.troopPointer + 1) % getMaxTroops(state.p2.civ)
+                        break;
+                }
             }
         },
         setLevel: (state, { payload: { player, level } }) => {
@@ -141,7 +156,7 @@ export const simulate = createAsyncThunk('game/simulate', async (arg, { getState
     const { game: { p1, p2, simulation } } = getState()
 
     // Deepcopy players
-    const context = lossyCopy(simulation) 
+    const context = lossyCopy(simulation)
     context["p1"] = lossyCopy(p1)
     context["p2"] = lossyCopy(p2)
     // context["firstBlood"] = 'alice' // aka "p1"
@@ -155,7 +170,7 @@ export const simulate = createAsyncThunk('game/simulate', async (arg, { getState
         throw new Error("Tutti i giocatori devono aver selezionato un eroe.")
     }
 
-    await scontro.call(context, { player: 'p1', hero: context.p1.hero, troop: firstTroop(context.p1) }, { player: 'p2', hero: context.p2.hero, troop: firstTroop(context.p2) })
+    await scontro.call(context, { player: 'p1', hero: context.p1.hero, troop: firstTroop(context.p1), rears: rearTroops(context.p1) }, { player: 'p2', hero: context.p2.hero, troop: firstTroop(context.p2), rears: rearTroops(context.p2) })
 
     context.logs = Array.from(context.logs)
     return context

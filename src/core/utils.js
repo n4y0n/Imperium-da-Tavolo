@@ -48,3 +48,7 @@ export function popValue() {
 export function lossyCopy(value) {
     return JSON.parse(JSON.stringify(value))
 }
+
+export function isRearTroop(troop) {
+    return troop.isRear
+}

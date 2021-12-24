@@ -1,6 +1,6 @@
 // Durante il conbattimento
 
-import { getMaxTroops, playerDead, popValue, pushValue, stages, truppaCattiva, playerFighter } from "./utils";
+import { getMaxTroops, playerDead, popValue, pushValue, stages, truppaCattiva, playerFighter, isRearTroop } from "./utils";
 import { applyEffect } from "./effects";
 
 const TURNS_PER_ENERGY_RECOVER = 4;
@@ -22,7 +22,6 @@ const TURNS_PER_ENERGY_RECOVER = 4;
 
 export function scontro(alice, bob) {
   const iteration = 1
-
   return new Promise((resolve, reject) => {
     try {
       this.logs.push("Inizio simulazione!")
@@ -101,7 +100,7 @@ function iniziaScontro(alice, bob) {
       }
     }
 
-    turn(this, { self: atroop, enemy: btroop })
+    turn(this, { alice, bob })
     this.iteration++;
   } while (!playerDead(alice) && !playerDead(bob))
 
@@ -116,8 +115,13 @@ function iniziaScontro(alice, bob) {
   }
 }
 
-function turn(ctx, { self, enemy }) {
+function turn(ctx, { alice, bob }) {
   const logs = ctx.logs;
+  const self = playerFighter(alice)
+  const enemy = playerFighter(bob)
+  self["damage"] = 0;
+  enemy["damage"] = 0;
+
   pushValue(self.atk)
   pushValue(self.def)
   pushValue(enemy.atk)
@@ -128,10 +132,14 @@ function turn(ctx, { self, enemy }) {
   computeDamage(enemy, self);
   computeDamage(self, enemy);
 
+  computeRearDamage(bob, alice)
+  computeRearDamage(alice, bob)
+
   applySkills(stages.AFTER_DAMAGE_COMPUTE, enemy, self, ctx)
 
   logs.push(`${self.name} [${self.hp.toFixed(2)}hp] -> ${enemy.name} [${enemy.hp.toFixed(2)}hp] -${enemy.damage.toFixed(2)}hp ${(enemy.hp - enemy.damage).toFixed(2)}`)
   logs.push(`${enemy.name} [${enemy.hp.toFixed(2)}hp] -> ${self.name} [${self.hp.toFixed(2)}hp] -${self.damage.toFixed(2)}hp ${(self.hp - self.damage).toFixed(2)}`)
+
   self.hp -= self.damage;
   enemy.hp -= enemy.damage;
 
@@ -149,10 +157,15 @@ function turn(ctx, { self, enemy }) {
  * @returns il danno
  */
 function computeDamage(self, other) {
-  other['damage'] = 0
   const damage = self.atk - ((self.atk / 100) * other.def);
-  other['damage'] = damage
+  other.damage += damage
   return damage;
+}
+
+function computeRearDamage(self, other) {
+  for(const rear of self.rears) {
+    computeDamage(rear, playerFighter(other))
+  }
 }
 
 function applySkills(stage, atroop, btroop, context) {
@@ -175,4 +188,16 @@ export function firstTroop({ hero, troops }) {
     }
   }
   return null
+}
+
+export function rearTroops({ hero, troops }) {
+  const rears = []
+  for (let position = 0; position < getMaxTroops(hero.civ); position++) {
+    const troop = troops[position];
+    if (troop && troop.hp > 0 && isRearTroop(troop)) {
+      troop['position'] = position
+      rears.push(troop)
+    }
+  }
+  return rears
 }

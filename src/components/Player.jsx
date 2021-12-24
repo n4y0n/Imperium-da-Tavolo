@@ -28,9 +28,9 @@ export default function PlayerComp({ player }) {
       <div>
         <HeroComp player={player} hero={hero} />
         <hr />
-        <TroopsComp troops={troops} />
+        <TroopsComp player={player} troops={troops} />
         <hr />
-        <TroopSelectComp onChange={({ position, troop }) => dispatch(setTroop({ player, position, troop }))} hero={hero} />
+        <TroopSelectComp player={player} onChange={({ position, troop }) => dispatch(setTroop({ player, position, troop }))} hero={hero} />
       </div>
     </div>
   )

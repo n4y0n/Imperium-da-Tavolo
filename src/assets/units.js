@@ -128,14 +128,14 @@ export const images = {
 }
 
 const unitas = {}
-for (const { nome, hp, atk, def, image, ability1, ability2 } of csv_file) {
+for (const { nome, hp, atk, def, image, ability1, ability2, rear } of csv_file) {
     const [civ, name] = nome?.split('#')
     if (!civ) continue
 
     if (unitas[civ]) {
-        unitas[civ].push({ name: name.split('_').join(' '), id: nome, isHero: false, maxHp: parseInt(hp), hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, maxEnergy: 10, skills: [ability1.toLowerCase(), ability2.toLowerCase()], image })
+        unitas[civ].push({ name: name.split('_').join(' '), id: nome, isHero: false, isRear: rear === "true", maxHp: parseInt(hp), hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, maxEnergy: 10, skills: [ability1.toLowerCase(), ability2.toLowerCase()], image })
     } else {
-        unitas[civ] = [{ name: name.split('_').join(' '), id: nome, isHero: false, maxHp: parseInt(hp), hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, maxEnergy: 10, skills: [ability1.toLowerCase(), ability2.toLowerCase()], image }]
+        unitas[civ] = [{ name: name.split('_').join(' '), id: nome, isHero: false, isRear: rear === "true", maxHp: parseInt(hp), hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, maxEnergy: 10, skills: [ability1.toLowerCase(), ability2.toLowerCase()], image }]
     }
 }
 export default unitas
