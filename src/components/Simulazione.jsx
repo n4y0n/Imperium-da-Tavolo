@@ -8,11 +8,25 @@ function Simulazione({ results }) {
         dispatch(resetSimulation())
     }
     return (
-        <div className='flex flex-col justify-center text-center'>
-            <button className="min-w-full bg-red-500 p-4 shadow-md active:shadow-sm active:bg-red-300 my-3" onClick={reset}>Reset</button>
-            <ul>
-                {results.map(text => <li>{text}</li>)}
-            </ul>
+        <div className='flex flex-col justify-center'>
+            <button className="min-w-full bg-red-500 p-4 shadow-md active:shadow-sm active:bg-red-300 my-3" onClick={reset}>Back to Selection</button>
+            <div className='flex justify-center text-center'>
+                <ul>
+                    {results.map((text, index, array) => {
+                        if (index === 2 || index === array.length - 2) {
+                            return (
+                                <li className='font-extrabold text-3xl'>
+                                    {text}
+                                </li>
+                            )
+                        }
+
+                        return (
+                            <li>{text}</li>
+                        )
+                    })}
+                </ul>
+            </div>
         </div>
     )
 }
