@@ -40,19 +40,19 @@ export function* createSimulation(ctx, alice, bob) {
 
   // Applica le single-use skill
   for (let skill of alice.hero.skills)
-    applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...ctx })
+    applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
   for (let skill of bob.hero.skills)
-    applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...ctx })
+    applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
   for (let skill of alice.hero.items)
-    applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...ctx })
+    applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
   for (let skill of bob.hero.items)
-    applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...ctx })
+    applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
   if (alice.troop)
     for (let skill of alice.troop.skills)
-      applyEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...ctx })
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx))
   if (bob.troop)
     for (let skill of bob.troop.skills)
-      applyEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...ctx })
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(bob, alice, ctx))
 
   do {
     if (ctx.iteration === 1) {
@@ -171,16 +171,23 @@ function computeRearDamage(alice, bob) {
   enemy.damage += tmp
 }
 
-function applySkills(stage, alice, bob, context) {
+function setupEffectContext(self, enemy, ctx, def = 'troop') {
+  if (def === 'troop')
+    return { self: playerFighter(self), selfPlayer: self, other: playerFighter(enemy), ...ctx }
+  if (def === 'hero')
+    return { self: self.hero, selfPlayer: self, other: playerFighter(enemy), ...ctx }
+}
+
+function applySkills(stage, alice, bob, ctx) {
   const atroop = playerFighter(alice)
   const btroop = playerFighter(bob)
   for (const code of atroop.skills) {
     if (!code) continue
-    applyEffect(stage, code, { self: atroop, selfPlayer: alice, other: btroop, ...context })
+    applyEffect(stage, code, setupEffectContext(alice, bob, ctx))
   }
   for (const code of btroop.skills) {
     if (!code) continue
-    applyEffect(stage, code, { self: btroop, selfPlayer: bob, other: atroop, ...context })
+    applyEffect(stage, code, setupEffectContext(bob, alice, ctx))
   }
 }
 
