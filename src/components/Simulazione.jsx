@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { useRef } from 'react'
+import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
 import { resetSimulation, simulateTick, fastFowardCurrentSimulation } from '../store/game'
@@ -53,6 +56,8 @@ function HeroStats({ player }) {
 function Simulazione({ logs }) {
     const dispatch = useDispatch()
     const inProgress = useSelector(state => state.game.simulation.inProgress)
+    const [isPaused, setIsPaused] = useState(false)
+    let interval = useRef()
 
     const reset = () => {
         dispatch(resetSimulation())
@@ -68,16 +73,46 @@ function Simulazione({ logs }) {
         dispatch(simulateTick())
     }
 
+    const updateIntervalFn = () => {
+        if (inProgress)
+            dispatch(simulateTick())
+        else
+            clearInterval(interval.current)
+    }
+
+    const pause = () => {
+        setIsPaused(true)
+        clearInterval(interval.current)
+    }
+    const start = () => {
+        setIsPaused(false)
+        interval.current = setInterval(updateIntervalFn, 500)
+    }
+
+    useEffect(() => {
+        setIsPaused(!inProgress)
+        if (inProgress) {
+            interval.current = setInterval(updateIntervalFn, 500)
+        } else {
+            clearInterval(interval.current)
+        }
+        return () => clearInterval(interval.current)
+    }, [inProgress])
+
     return (
         <div className='flex'>
             <div className='flex flex-col'>
                 <div className='flex items-center w-full'>
                     <button className="w-full bg-red-500 p-4 shadow-md active:shadow-sm active:bg-red-300" onClick={reset}>Back to Selection</button>
                     <div className='flex items-center w-full'>
-                        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 disabled:bg-green-300" disabled={!inProgress} onClick={nextTick}>Tick</button>
+                        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 disabled:bg-green-300" disabled={isPaused && !inProgress} onClick={nextTick}>Tick</button>
                         <button className="w-full bg-gray-500 p-4 shadow-md active:shadow-sm active:bg-gray-300 disabled:bg-gray-300" disabled={!inProgress} onClick={fastFWSimulation}>FastFW</button>
                     </div>
-                    <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 disabled:bg-green-300" disabled={inProgress} onClick={nextBattle}>Next</button>
+                    <div className='flex items-center w-full'>
+                        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 disabled:bg-green-300" disabled={inProgress} onClick={nextBattle}>Next</button>
+                        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 disabled:bg-green-300" disabled={isPaused} onClick={pause}>Pause</button>
+                        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 disabled:bg-green-300" disabled={!isPaused} onClick={start}>Start</button>
+                    </div>
                 </div>
                 <div className='grid grid-cols-2'>
                     <HeroComp player="p1">

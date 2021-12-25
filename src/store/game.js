@@ -57,9 +57,6 @@ const slice = createSlice({
             state.simulation = { ...initialState.simulation }
             currentSimulation = null;
         },
-        updateSimulation: (state, { payload }) => {
-            state.simulation = payload
-        },
         setTroop: (state, { payload: { player, troop } }) => {
             if (state[player].troopPointerState !== "auto") {
                 state[player].troops[state[player].troopPointer] = troop
@@ -95,6 +92,7 @@ const slice = createSlice({
         builder
             .addCase(simulate.pending, state => {
                 state.simulation.error = null;
+                state.simulation.inProgress = true;
             })
             .addCase(simulate.fulfilled, (state, { payload }) => {
                 state.p1.hero = payload.p1.hero;
@@ -104,6 +102,7 @@ const slice = createSlice({
                 state.p2.troops = payload.p2.troops;
 
                 state.simulation = payload;
+                state.simulation.inProgress = false;
             })
             .addCase(simulate.rejected, (state, { error }) => {
                 console.error(error)
@@ -128,6 +127,7 @@ const slice = createSlice({
             })
             .addCase(fastFowardCurrentSimulation.pending, state => {
                 state.simulation.error = null;
+                state.simulation.inProgress = true;
             })
             .addCase(fastFowardCurrentSimulation.fulfilled, (state, { payload }) => {
                 state.p1.hero = payload.p1.hero;
@@ -138,6 +138,7 @@ const slice = createSlice({
 
                 state.simulation = payload;
                 currentSimulation = null;
+                state.simulation.inProgress = false;
             })
             .addCase(fastFowardCurrentSimulation.rejected, (state, { error }) => {
                 console.error(error)
@@ -157,7 +158,6 @@ export const {
     setItems,
     setSkills,
     setTroopPointer,
-    updateSimulation,
     toggleHeroSkill
 } = slice.actions
 
