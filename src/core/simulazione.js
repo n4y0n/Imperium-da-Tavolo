@@ -81,7 +81,7 @@ export function* simulationTick(ctx, alice, bob) {
         atroop.energy = atroop.maxEnergy
       }
       if (btroop.energy > btroop.maxEnergy) {
-        atroop.energy = atroop.maxEnergy
+        btroop.energy = btroop.maxEnergy
       }
     }
 

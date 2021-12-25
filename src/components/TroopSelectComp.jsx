@@ -37,11 +37,12 @@ function UnitaDisponibili({ civ, onSelected }) {
   )
 }
 
-function TroopSelectComp({ hero, player }) {
-  const [civ, setCiv] = useState(hero.civ)
+function TroopSelectComp({ player }) {
   const dispatch = useDispatch()
+  const hero = useSelector(state => state.game[player].hero)
   const selectedTroop = useSelector(state => state.game[player].troopPointer)
   const selectedTroopPoiner = useSelector(state => state.game[player].troopPointerState)
+  const [civ, setCiv] = useState(hero.civ)
 
   const posizioni = []
 

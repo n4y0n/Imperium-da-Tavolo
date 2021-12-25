@@ -111,11 +111,29 @@ const slice = createSlice({
                 state.p2.troops = payload.p2.troops;
 
                 state.simulation = payload;
-                console.log(payload);
             })
             .addCase(simulateTick.rejected, (state, { error }) => {
                 console.error(error)
                 state.simulation = { ...initialState.simulation, error }
+                currentSimulation = null;
+            })
+            .addCase(fastFowardCurrentSimulation.pending, state => {
+                state.simulation.error = null;
+            })
+            .addCase(fastFowardCurrentSimulation.fulfilled, (state, { payload }) => {
+                state.p1.hero = payload.p1.hero;
+                state.p2.hero = payload.p2.hero;
+
+                state.p1.troops = payload.p1.troops;
+                state.p2.troops = payload.p2.troops;
+
+                state.simulation = payload;
+                currentSimulation = null;
+            })
+            .addCase(fastFowardCurrentSimulation.rejected, (state, { error }) => {
+                console.error(error)
+                state.simulation = { ...initialState.simulation, error }
+                currentSimulation = null;
             })
     }
 })
@@ -163,6 +181,31 @@ export const simulateTick = createAsyncThunk('game/simulate-tick', async (arg, {
     const tickResult = currentSimulation.next();
     // Return simulation context after one simulation tick
     return lossyCopy(tickResult.value)
+})
+
+export const fastFowardCurrentSimulation = createAsyncThunk('game/simulate-tick-ff', async (arg, { getState, dispatch }) => {
+    const { game } = getState()
+
+    // setup simulation context
+    const context = setupContext(game)
+
+    // Assert context validity
+    assertHero(context.p1)
+    assertHero(context.p2)
+
+    // setup players
+    const alice = setupPlayer('alice', context.p1)
+    const bob = setupPlayer('bob', context.p2)
+
+    // if there is a simulation running use that, else create a new one
+    currentSimulation = context.inProgress ? currentSimulation : simulationTick(context, alice, bob)
+
+    let lastState = context
+    for (let state of currentSimulation) {
+        lastState = state
+    }
+    // Return simulation context after one simulation tick
+    return lossyCopy(lastState)
 })
 
 function setupContext({ p1, p2, simulation }) {

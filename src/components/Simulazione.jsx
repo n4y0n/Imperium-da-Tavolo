@@ -1,17 +1,11 @@
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
-import { resetSimulation, simulateTick } from '../store/game'
+import { resetSimulation, simulateTick, fastFowardCurrentSimulation } from '../store/game'
+import HeroComp from './Hero'
+import TroopsComp from './Troops'
 
-function Simulazione({ logs }) {
-    const dispatch = useDispatch()
+function LogsPanel({ logs }) {
     const inProgress = useSelector(state => state.game.simulation.inProgress)
-    const reset = () => {
-        dispatch(resetSimulation())
-    }
-    const nextTick = () => {
-        dispatch(simulateTick())
-    }
-
     const show = []
 
     for (let i = logs.length - 1; i >= 0; i--) {
@@ -39,15 +33,67 @@ function Simulazione({ logs }) {
     }
 
     return (
-        <div className='flex flex-col justify-center'>
-            <div className='flex items-center w-full'>
-                <button className="w-full bg-red-500 p-4 shadow-md active:shadow-sm active:bg-red-300 my-3" onClick={reset}>Back to Selection</button>
-                <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 my-3 disabled:bg-green-300" disabled={!inProgress} onClick={nextTick}>Tick</button>
+        <div className='flex justify-center overflow-y-scroll max-h-screen'>
+            <ul className="text-center">
+                {show}
+            </ul>
+        </div>
+    )
+}
+
+function HeroStats({ player }) {
+    return (
+        <div>
+            Put stats here
+        </div>
+    )
+}
+
+
+function Simulazione({ logs }) {
+    const dispatch = useDispatch()
+    const inProgress = useSelector(state => state.game.simulation.inProgress)
+
+    const reset = () => {
+        dispatch(resetSimulation())
+    }
+    const nextTick = () => {
+        dispatch(simulateTick())
+    }
+    const fastFWSimulation = () => {
+        dispatch(fastFowardCurrentSimulation())
+    }
+    const nextBattle = () => {
+        dispatch(resetSimulation())
+        dispatch(simulateTick())
+    }
+
+    return (
+        <div className='flex'>
+            <div className='flex flex-col flex-shrink-0'>
+                <div className='flex items-center w-full'>
+                    <button className="w-full bg-red-500 p-4 shadow-md active:shadow-sm active:bg-red-300" onClick={reset}>Back to Selection</button>
+                    <div className='flex items-center w-full'>
+                        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 disabled:bg-green-300" disabled={!inProgress} onClick={nextTick}>Tick</button>
+                        <button className="w-full bg-gray-500 p-4 shadow-md active:shadow-sm active:bg-gray-300 disabled:bg-gray-300" disabled={!inProgress} onClick={fastFWSimulation}>FastFW</button>
+                    </div>
+                    <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 disabled:bg-green-300" disabled={inProgress} onClick={nextBattle}>Next</button>
+                </div>
+                <div className='grid grid-cols-2'>
+                    <HeroComp player="p1">
+                        <HeroStats player="p1" />
+                    </HeroComp>
+                    <HeroComp player="p2">
+                        <HeroStats player="p2" />
+                    </HeroComp>
+                </div>
+                <div>
+                    <TroopsComp player="p1" />
+                    <TroopsComp player="p2" />
+                </div>
             </div>
-            <div className='flex justify-center text-center'>
-                <ul>
-                    {show}
-                </ul>
+            <div className='border-l m-0 p-0 w-full'>
+                <LogsPanel logs={logs} />
             </div>
         </div>
     )

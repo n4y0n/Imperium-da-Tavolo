@@ -10,6 +10,10 @@
     --background-color: #74B3CE;
 }
 
+* {
+    @apply box-border m-0 p-0;
+}
+
 .debug {
     @apply border-red-500 border-solid border-2;
 }

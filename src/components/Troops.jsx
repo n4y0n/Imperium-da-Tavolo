@@ -1,10 +1,14 @@
+import { useSelector } from "react-redux"
+
 function TroopComp({ troop }) {
     return (
         <span>{troop.name.split('_').join(' ')}</span>
     )
 }
 
-export default function TroopsComp({ troops, player }) {
+export default function TroopsComp({ player }) {
+    const troops = useSelector(state => state.game[player].troops)
+
     return (
         <div className='my-5 flex flex-row justify-center gap-4'>
             {Object.entries(troops).map(([key, troop]) => (
