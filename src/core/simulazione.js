@@ -2,8 +2,12 @@
 
 import { getMaxTroops, playerDead, popValue, pushValue, stages, truppaCattiva, playerFighter, isRearTroop } from "./utils";
 import { applyEffect } from "./effects";
+import configs from "./configs";
 
 const TURNS_PER_ENERGY_RECOVER = 4;
+let lastUpdate = Date.now();
+let gameInterval = null
+
 
 // Effetti
 // Hero Level, Oggetti, Skills (Eroe), Skills (Truppe)
@@ -24,6 +28,7 @@ export function scontro(alice, bob) {
   const iteration = 1
   return new Promise((resolve, reject) => {
     try {
+
       this.logs.push("Inizio simulazione!")
       this.logs.push(`Scontro tra Alice con ${alice.hero.name} e Bob con ${bob.hero.name}`)
 
@@ -37,26 +42,10 @@ export function scontro(alice, bob) {
         bob.troop.hp += 5 * bob.hero.level
       }
 
-      // Applica le single-use skill
-      for (let skill of alice.hero.skills)
-        applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...this })
-      for (let skill of bob.hero.skills)
-        applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...this })
-      for (let skill of alice.hero.items)
-        applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...this })
-      for (let skill of bob.hero.items)
-        applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...this })
-      if (alice.troop)
-        for (let skill of alice.troop.skills)
-          applyEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...this })
-      if (bob.troop)
-        for (let skill of bob.troop.skills)
-          applyEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...this })
-
-      // Se tutti e due hanno truppe
-      iniziaScontro.call({ ...this, iteration }, alice, bob)
+      startBattle.call({ ...this, iteration }, alice, bob)
 
       this.logs.push("Fine simulazione!")
+
       resolve()
     } catch (e) {
       reject(e)
@@ -64,14 +53,29 @@ export function scontro(alice, bob) {
   })
 }
 
-function iniziaScontro(alice, bob) {
-  const logs = this.logs
+function startBattle(alice, bob) {
+  // Applica le single-use skill
+  for (let skill of alice.hero.skills)
+    applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...this })
+  for (let skill of bob.hero.skills)
+    applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...this })
+  for (let skill of alice.hero.items)
+    applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...this })
+  for (let skill of bob.hero.items)
+    applyHeroEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...this })
+  if (alice.troop)
+    for (let skill of alice.troop.skills)
+      applyEffect(stages.BEFORE_BATTLE, skill, { self: alice, ...this })
+  if (bob.troop)
+    for (let skill of bob.troop.skills)
+      applyEffect(stages.BEFORE_BATTLE, skill, { self: bob, ...this })
+
   const atroop = playerFighter(alice)
   const btroop = playerFighter(bob)
 
   do {
     if (this.iteration === 1) {
-      logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
+      this.logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
       if (truppaCattiva(btroop) && !truppaCattiva(atroop) && !atroop.isHero) {
         atroop.hp *= 4
       }
@@ -85,7 +89,7 @@ function iniziaScontro(alice, bob) {
         atroop.hp *= 10
       }
     } else {
-      logs.push(`--------------------------------------------`);
+      this.logs.push(`--------------------------------------------`);
     }
 
     if (this.iteration % TURNS_PER_ENERGY_RECOVER === 0) {
@@ -101,17 +105,18 @@ function iniziaScontro(alice, bob) {
     }
 
     turn(this, { alice, bob })
+    this.update()
     this.iteration++;
-  } while (!playerDead(alice) && !playerDead(bob))
+  } while (!playerDead(alice) && !playerDead(bob));
 
-  logs.push(`${atroop.name} ${atroop.hp.toFixed(2)}hp`);
-  logs.push(`${btroop.name} ${btroop.hp.toFixed(2)}hp`);
+  this.logs.push(`${atroop.name} ${atroop.hp.toFixed(2)}hp`);
+  this.logs.push(`${btroop.name} ${btroop.hp.toFixed(2)}hp`);
   if (playerDead(alice) && playerDead(bob)) {
-    logs.push("Draw");
+    this.logs.push("Draw");
   } else if (playerDead(alice) && !playerDead(bob)) {
-    logs.push(`${bob.hero.name} Win`);
+    this.logs.push(`${bob.hero.name} Win`);
   } else if (!playerDead(alice) && playerDead(bob)) {
-    logs.push(`${alice.hero.name} Win`);
+    this.logs.push(`${alice.hero.name} Win`);
   }
 }
 
@@ -122,25 +127,26 @@ function turn(ctx, { alice, bob }) {
   self["damage"] = 0;
   enemy["damage"] = 0;
 
-  pushValue(self.atk)
-  pushValue(self.def)
-  pushValue(enemy.atk)
-  pushValue(enemy.def)
+  pushState(self)
+  pushState(enemy)
 
   applySkills(stages.BEFORE_DAMAGE_COMPUTE, alice, bob, ctx)
 
   computeDamage(enemy, self);
   computeDamage(self, enemy);
 
+  logs.push(`${self.name} [${self.hp.toFixed(2)}hp] -> ${enemy.name} [${enemy.hp.toFixed(2)}hp] -${enemy.damage.toFixed(2)}hp`)
+  logs.push(`${enemy.name} [${enemy.hp.toFixed(2)}hp] -> ${self.name} [${self.hp.toFixed(2)}hp] -${self.damage.toFixed(2)}hp`)
+
   applySkills(stages.BEFORE_REAR_DAMAGE_COMPUTE, alice, bob, ctx)
 
   computeRearDamage(bob, alice)
   computeRearDamage(alice, bob)
 
-  applySkills(stages.AFTER_DAMAGE_COMPUTE, alice, bob, ctx)
-
   logs.push(`${self.name} [${self.hp.toFixed(2)}hp] -> ${enemy.name} [${enemy.hp.toFixed(2)}hp] -${enemy.damage.toFixed(2)}hp ${(enemy.hp - enemy.damage).toFixed(2)}`)
   logs.push(`${enemy.name} [${enemy.hp.toFixed(2)}hp] -> ${self.name} [${self.hp.toFixed(2)}hp] -${self.damage.toFixed(2)}hp ${(self.hp - self.damage).toFixed(2)}`)
+
+  applySkills(stages.AFTER_DAMAGE_COMPUTE, alice, bob, ctx)
 
   self.hp -= self.damage;
   enemy.hp -= enemy.damage;
@@ -148,10 +154,8 @@ function turn(ctx, { alice, bob }) {
   applySkills(stages.AFTER_DAMAGE_APPLY, alice, bob, ctx)
   applySkills(stages.REAR_EFFECT, alice, bob, ctx)
 
-  enemy.def = popValue()
-  enemy.atk = popValue()
-  self.def = popValue()
-  self.atk = popValue()
+  popState(enemy)
+  popState(self)
 }
 
 
@@ -166,9 +170,14 @@ function computeDamage(self, other) {
 }
 
 function computeRearDamage(self, other) {
+  const enemy = playerFighter(other)
+  const tmp = enemy.damage;
+  enemy.damage = 0;
   for (const rear of self.rears) {
-    computeDamage(rear, playerFighter(other))
+    computeDamage(rear, enemy)
   }
+  enemy.damage *= configs.REAR_DAMAGE_PERCENT
+  enemy.damage += tmp
 }
 
 function applySkills(stage, alice, bob, context) {
@@ -182,6 +191,16 @@ function applySkills(stage, alice, bob, context) {
     if (!code) continue
     applyEffect(stage, code, { self: btroop, selfPlayer: bob, other: atroop, ...context })
   }
+}
+
+function pushState(troop) {
+  pushValue(troop.atk)
+  pushValue(troop.def)
+}
+
+function popState(troop) {
+  troop.def = popValue()
+  troop.atk = popValue()
 }
 
 export function firstTroop({ hero, troops }) {

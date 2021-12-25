@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import heroes from '../assets/heroes'
 import { scontro, firstTroop, rearTroops } from '../core/simulazione'
 import { getMaxTroops, lossyCopy } from "../core/utils"
+import config from '../core/configs';
 const [defCiv, ...other] = Object.keys(heroes)
 
 const initialState = {
@@ -53,6 +54,9 @@ const slice = createSlice({
 
             state.simulation = { ...initialState.simulation }
         },
+        updateSimulation: (state, { payload }) => {
+            state.simulation = payload
+        },
         setTroop: (state, { payload: { player, troop } }) => {
             if (state[player].troopPointerState !== "auto") {
                 state[player].troops[state[player].troopPointer] = troop
@@ -97,15 +101,20 @@ const slice = createSlice({
     }
 })
 
-export const { selectCiv, selectHero, reset, setTroop, resetSimulation, setLevel, setItems, setSkills, setTroopPointer } = slice.actions
+export const { selectCiv, selectHero, reset, setTroop, resetSimulation, setLevel, setItems, setSkills, setTroopPointer, updateSimulation } = slice.actions
 
 export const simulate = createAsyncThunk('game/simulate', async (arg, { getState, dispatch }) => {
+    function update() {
+        dispatch(updateSimulation(lossyCopy(this)))
+    }
+
     // Player1 = alice
     // Player2 = bob
     const { game: { p1, p2, simulation } } = getState()
 
     // Deepcopy players
-    const context = lossyCopy(simulation)
+    const context = lossyCopy({ ...simulation, config })
+    context.update = update;
     context.p1 = lossyCopy(p1)
     context.p2 = lossyCopy(p2)
     context["logs"] = []
@@ -120,8 +129,7 @@ export const simulate = createAsyncThunk('game/simulate', async (arg, { getState
 
     await scontro.call(context, { player: 'p1', hero: context.p1.hero, troop: firstTroop(context.p1), rears: rearTroops(context.p1) }, { player: 'p2', hero: context.p2.hero, troop: firstTroop(context.p2), rears: rearTroops(context.p2) })
 
-    context.logs = Array.from(context.logs)
-    return context
+    return lossyCopy(context)
 })
 
 export default slice.reducer
