@@ -10,6 +10,7 @@ import defensivecry from './skill_icon_hero/defensivecry.png'
 import divinegrace from './skill_icon_hero/divine_grace.png'
 // import concealment from './skill_icon_hero/concealment.png'
 import concealment from './anonymous.jpg'
+
 import dodge from './skill_icon_hero/dodge.png'
 import epicarmor from './skill_icon_hero/epicarmor.png'
 import epicattack from './skill_icon_hero/epicattack.png'

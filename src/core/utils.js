@@ -54,3 +54,32 @@ export function lossyCopy(value) {
 export function isRearTroop(troop) {
     return troop.isRear
 }
+
+export function firstTroop({ hero, troops }) {
+    for (let position = 0; position < getMaxTroops(hero.civ); position++) {
+        const troop = troops[position];
+        if (troop && troop.hp > 0) {
+            troop['position'] = position
+            return troop
+        }
+    }
+    return null
+}
+
+export function rearTroops({ hero, troops }) {
+    const rears = []
+    for (let position = 0; position < getMaxTroops(hero.civ); position++) {
+        const troop = troops[position];
+        if (troop && troop.hp > 0 && isRearTroop(troop)) {
+            troop['position'] = position
+            rears.push(troop)
+        }
+    }
+    return rears
+}
+
+export function getRearDamagePercent(troop) {
+    switch (troop.position) {
+        default: return .2;
+    }
+}

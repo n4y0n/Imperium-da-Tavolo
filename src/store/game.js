@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import heroes from '../assets/heroes'
-import { scontro, firstTroop, rearTroops } from '../core/simulazione'
-import { getMaxTroops, lossyCopy } from "../core/utils"
-import config from '../core/configs';
+import { fastSimulate, simulationTick } from '../core/simulazione'
+import { getMaxTroops, lossyCopy, firstTroop, rearTroops } from "../core/utils"
 const [defCiv, ...other] = Object.keys(heroes)
+
+let currentSimulation = null
 
 const initialState = {
     p1: {
@@ -24,6 +25,7 @@ const initialState = {
         p1: null,
         p2: null,
         inProgress: false,
+        iteration: 1,
         error: null,
         logs: [],
     },
@@ -53,6 +55,7 @@ const slice = createSlice({
             if (state.p2.hero.hp <= 0) state.p2.hero = null
 
             state.simulation = { ...initialState.simulation }
+            currentSimulation = null;
         },
         updateSimulation: (state, { payload }) => {
             state.simulation = payload
@@ -81,20 +84,36 @@ const slice = createSlice({
     },
     extraReducers: builder => {
         builder
-            .addCase(simulate.pending, (state, { payload }) => {
-                state.simulation.inProgress = true;
+            .addCase(simulate.pending, state => {
                 state.simulation.error = null;
             })
             .addCase(simulate.fulfilled, (state, { payload }) => {
-                // state.simulation.inProgress = false;
-                state.simulation.logs = payload.logs;
                 state.p1.hero = payload.p1.hero;
                 state.p2.hero = payload.p2.hero;
 
                 state.p1.troops = payload.p1.troops;
                 state.p2.troops = payload.p2.troops;
+
+                state.simulation = payload;
             })
             .addCase(simulate.rejected, (state, { error }) => {
+                console.error(error)
+                state.simulation = { ...initialState.simulation, error }
+            })
+            .addCase(simulateTick.pending, state => {
+                state.simulation.error = null;
+            })
+            .addCase(simulateTick.fulfilled, (state, { payload }) => {
+                state.p1.hero = payload.p1.hero;
+                state.p2.hero = payload.p2.hero;
+
+                state.p1.troops = payload.p1.troops;
+                state.p2.troops = payload.p2.troops;
+
+                state.simulation = payload;
+                console.log(payload);
+            })
+            .addCase(simulateTick.rejected, (state, { error }) => {
                 console.error(error)
                 state.simulation = { ...initialState.simulation, error }
             })
@@ -103,33 +122,67 @@ const slice = createSlice({
 
 export const { selectCiv, selectHero, reset, setTroop, resetSimulation, setLevel, setItems, setSkills, setTroopPointer, updateSimulation } = slice.actions
 
-export const simulate = createAsyncThunk('game/simulate', async (arg, { getState, dispatch }) => {
-    function update() {
-        dispatch(updateSimulation(lossyCopy(this)))
-    }
+export const simulate = createAsyncThunk('game/simulate', async (arg, { getState }) => {
+    const { game } = getState()
 
-    // Player1 = alice
-    // Player2 = bob
-    const { game: { p1, p2, simulation } } = getState()
+    // setup simulation context
+    const context = setupContext(game)
 
-    // Deepcopy players
-    const context = lossyCopy({ ...simulation, config })
-    context.update = update;
+    // Assert context validity
+    assertHero(context.p1)
+    assertHero(context.p2)
+
+    // setup players
+    const alice = setupPlayer('alice', context.p1)
+    const bob = setupPlayer('bob', context.p2)
+
+    // start simulation for a battle
+    fastSimulate(context, alice, bob)
+
+    // return finished battle context
+    return lossyCopy(context)
+})
+
+export const simulateTick = createAsyncThunk('game/simulate-tick', async (arg, { getState, dispatch }) => {
+    const { game } = getState()
+
+    // setup simulation context
+    const context = setupContext(game)
+
+    // Assert context validity
+    assertHero(context.p1)
+    assertHero(context.p2)
+
+    // setup players
+    const alice = setupPlayer('alice', context.p1)
+    const bob = setupPlayer('bob', context.p2)
+
+    // if there is a simulation running use that, else create a new one
+    currentSimulation = context.inProgress ? currentSimulation : simulationTick(context, alice, bob)
+
+    const tickResult = currentSimulation.next();
+    // Return simulation context after one simulation tick
+    return lossyCopy(tickResult.value)
+})
+
+function setupContext({ p1, p2, simulation }) {
+    const context = lossyCopy(simulation)
     context.p1 = lossyCopy(p1)
     context.p2 = lossyCopy(p2)
-    context["logs"] = []
     context.logs.push = function (val) {
         console.log(val)
         Array.prototype.push.call(this, val)
     }
+    return context;
+}
 
-    if (!p1?.hero || !p2?.hero) {
-        throw new Error("Tutti i giocatori devono aver selezionato un eroe.")
-    }
+function setupPlayer(name, playerData) {
+    return { hero: playerData.hero, troop: firstTroop(playerData), rears: rearTroops(playerData), player: name }
+}
 
-    await scontro.call(context, { player: 'p1', hero: context.p1.hero, troop: firstTroop(context.p1), rears: rearTroops(context.p1) }, { player: 'p2', hero: context.p2.hero, troop: firstTroop(context.p2), rears: rearTroops(context.p2) })
-
-    return lossyCopy(context)
-})
+function assertHero(player) {
+    if (player && player.hero) return
+    throw new Error("Tutti i giocatori devono aver selezionato un eroe.")
+}
 
 export default slice.reducer

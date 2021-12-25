@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { simulate } from './store/game'
+import { simulate, simulateTick } from './store/game'
 import PlayerComp from './components/Player'
 import Simulazione from './components/Simulazione'
 
@@ -8,14 +8,16 @@ function App() {
   const inProgress = useSelector(state => state.game.simulation.inProgress)
   const logs = useSelector(state => state.game.simulation.logs)
   const error = useSelector(state => state.game.simulation.error)
-  const startSimulation = () => { dispatch(simulate()) }
   if (inProgress || logs.length > 0) {
     return <Simulazione logs={logs} />
   }
 
   return (
     <div>
-      <button className="min-w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 my-3" onClick={startSimulation}>Simula</button>
+      <div className='flex items-center w-full'>
+        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 my-3" onClick={() => dispatch(simulate())}>FastSimula</button>
+        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 my-3" onClick={() => dispatch(simulateTick())}>Simula</button>
+      </div>
       <div className='my-7 text-center'>
         {error?.message}
       </div>
