@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import heroes from '../assets/heroes'
-import { fastSimulate, simulationTick } from '../core/simulazione'
+import { fastSimulate, createSimulation } from '../core/simulazione'
 import { getMaxTroops, lossyCopy, firstTroop, rearTroops } from "../core/utils"
 const [defCiv, ...other] = Object.keys(heroes)
 
@@ -176,7 +176,7 @@ export const simulateTick = createAsyncThunk('game/simulate-tick', async (arg, {
     const bob = setupPlayer('bob', context.p2)
 
     // if there is a simulation running use that, else create a new one
-    currentSimulation = context.inProgress ? currentSimulation : simulationTick(context, alice, bob)
+    currentSimulation = context.inProgress ? currentSimulation : createSimulation(context, alice, bob)
 
     const tickResult = currentSimulation.next();
     // Return simulation context after one simulation tick
@@ -198,7 +198,7 @@ export const fastFowardCurrentSimulation = createAsyncThunk('game/simulate-tick-
     const bob = setupPlayer('bob', context.p2)
 
     // if there is a simulation running use that, else create a new one
-    currentSimulation = context.inProgress ? currentSimulation : simulationTick(context, alice, bob)
+    currentSimulation = context.inProgress ? currentSimulation : createSimulation(context, alice, bob)
 
     let lastState = context
     for (let state of currentSimulation) {

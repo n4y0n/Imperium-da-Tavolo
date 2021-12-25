@@ -21,7 +21,7 @@ const TURNS_PER_ENERGY_RECOVER = 4;
 // Eseguo le skill
 // Applico il danno
 
-export function* simulationTick(ctx, alice, bob) {
+export function* createSimulation(ctx, alice, bob) {
   ctx.logs.push("Inizio simulazione!")
   ctx.logs.push(`Scontro tra Alice con ${alice.hero.name} e Bob con ${bob.hero.name}`)
   const atroop = playerFighter(alice)
@@ -141,7 +141,10 @@ function turn(ctx, alice, bob) {
 }
 
 export function fastSimulate(ctx, alice, bob) {
-  for (let state of simulationTick(ctx, alice, bob));
+  const simulation = createSimulation(ctx, alice, bob)
+
+  // Fast foward simulation until it ends
+  for (let state of simulation);
 }
 
 /**
