@@ -81,6 +81,15 @@ const slice = createSlice({
         setItems: (state, { payload: { player, items } }) => {
             state[player].hero.items = items
         },
+        toggleHeroSkill: (state, { payload: { player, skill } }) => {
+            const skills = state[player].hero.skills
+
+            if (skills.includes(skill.id)) {
+                state[player].hero.skills = skills.filter(sk => sk !== skill.id)
+            } else {
+                skills.push(skill.id)
+            }
+        },
     },
     extraReducers: builder => {
         builder
@@ -138,7 +147,19 @@ const slice = createSlice({
     }
 })
 
-export const { selectCiv, selectHero, reset, setTroop, resetSimulation, setLevel, setItems, setSkills, setTroopPointer, updateSimulation } = slice.actions
+export const {
+    selectCiv,
+    selectHero,
+    reset,
+    setTroop,
+    resetSimulation,
+    setLevel,
+    setItems,
+    setSkills,
+    setTroopPointer,
+    updateSimulation,
+    toggleHeroSkill
+} = slice.actions
 
 export const simulate = createAsyncThunk('game/simulate', async (arg, { getState }) => {
     const { game } = getState()

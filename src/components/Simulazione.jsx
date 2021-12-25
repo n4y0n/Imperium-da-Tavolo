@@ -70,7 +70,7 @@ function Simulazione({ logs }) {
 
     return (
         <div className='flex'>
-            <div className='flex flex-col flex-shrink-0'>
+            <div className='flex flex-col'>
                 <div className='flex items-center w-full'>
                     <button className="w-full bg-red-500 p-4 shadow-md active:shadow-sm active:bg-red-300" onClick={reset}>Back to Selection</button>
                     <div className='flex items-center w-full'>
