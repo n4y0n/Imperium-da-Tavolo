@@ -117,8 +117,8 @@ function turn(ctx, alice, bob) {
 
   applySkills(stages.BEFORE_DAMAGE_COMPUTE, alice, bob, ctx)
 
-  computeDamage(enemy, self);
-  computeDamage(self, enemy);
+  computeDamage(alice, bob);
+  computeDamage(bob, alice);
 
   applySkills(stages.BEFORE_REAR_DAMAGE_COMPUTE, alice, bob, ctx)
 
@@ -151,18 +151,21 @@ export function fastSimulate(ctx, alice, bob) {
  * Calcola il danno che `self` infligge a `other` e lo salva in `other.damage`
  * @returns il danno
  */
-function computeDamage(self, other) {
+function computeDamage(alice, bob) {
+  const self = playerFighter(alice)
+  const other = playerFighter(bob)
+
   const damage = self.atk - ((self.atk / 100) * other.def);
   other.damage += damage
   return damage;
 }
 
-function computeRearDamage(self, other) {
-  const enemy = playerFighter(other)
+function computeRearDamage(alice, bob) {
+  const enemy = playerFighter(bob)
   const tmp = enemy.damage;
   enemy.damage = 0;
-  for (const rear of self.rears) {
-    const damage = (rear.atk - ((rear.atk / 100) * other.def)) * getRearDamagePercent(rear);
+  for (const rear of alice.rears) {
+    const damage = (rear.atk - ((rear.atk / 100) * enemy.def)) * getRearDamagePercent(rear);
     enemy.damage += damage
   }
   enemy.damage += tmp
