@@ -1,6 +1,8 @@
 import units from '../assets/units'
 import { useEffect, useState } from 'react';
 import { getUnitImage } from '../core/assets'
+import { useSelector, useDispatch } from 'react-redux';
+import { setTroop, setTroopPointer } from '../store/game'
 
 function UnitaDisponibili({ civ, onSelected }) {
   if (!civ) return null
@@ -35,9 +37,12 @@ function UnitaDisponibili({ civ, onSelected }) {
   )
 }
 
-function TroopSelectComp({ hero, onChange }) {
+function TroopSelectComp({ hero, player }) {
   const [civ, setCiv] = useState(hero.civ)
-  const [pos, setPos] = useState(0)
+  const dispatch = useDispatch()
+  const selectedTroop = useSelector(state => state.game[player].troopPointer)
+  const selectedTroopPoiner = useSelector(state => state.game[player].troopPointerState)
+
   const posizioni = []
 
   useEffect(() => setCiv(hero.civ), [])
@@ -45,16 +50,23 @@ function TroopSelectComp({ hero, onChange }) {
   for (let p = 0; p < hero.maxTroops; p++) {
     posizioni.push(
       (
-        <span onClick={() => setPos(p)} key={"posizione" + hero.name + p}>
-          <label htmlFor={"posizione" + hero.name + p}> P{p} </label>
-          <input id={"posizione" + hero.name + p} name={"posizione" + hero.name} type="radio" /> |
+        <span key={"posizione" + hero.name + p} className={(selectedTroop === p ? "debug" : "")}>
+          <span className='align-baseline'>{p}: </span>
+          <input className='align-baseline' onChange={() => dispatch(setTroopPointer({ player, position: p, pointerChange: 'manual' }))} id={"posizione" + hero.name + p} checked={selectedTroopPoiner === 'manual' && selectedTroop === p} name={"posizione" + hero.name} type="radio" /> |
         </span>
       )
     )
   }
 
-  const addTroop = (position, troop) => {
-    onChange?.({ position, troop })
+  posizioni.push((
+    <span key={"posizione" + hero.name + "4000" + player}>
+      <span className='align-baseline'>AUTO: </span>
+      <input className='align-baseline' onChange={() => dispatch(setTroopPointer({ player, position: 0, pointerChange: 'auto' }))} checked={selectedTroopPoiner === 'auto'} id={"posizione" + hero.name + "4000" + player} name={"posizione" + hero.name} type="radio" /> |
+    </span>
+  ))
+
+  const addTroop = troop => {
+    dispatch(setTroop({ player, troop }))
   }
 
   return (
@@ -66,7 +78,7 @@ function TroopSelectComp({ hero, onChange }) {
         {posizioni}
       </form>
       <h1 className='text-xl font-bold mt-2 text-center'>Truppe disponibili</h1>
-      <UnitaDisponibili onSelected={unita => addTroop(pos, unita)} civ={civ} />
+      <UnitaDisponibili onSelected={unita => addTroop(unita)} civ={civ} />
     </div>
   )
 }

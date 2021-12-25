@@ -1,8 +1,8 @@
 import { images as unitsImages } from '../assets/units'
 import { images as heroesImages } from '../assets/heroes'
+import heroSkillInfo, { images as heroeSkillsImages } from '../assets/heroskills'
 
-const images = { heroes: { ...heroesImages }, units: { ...unitsImages } }
-
-
-export const getHeroImage = code => images.heroes[code]
-export const getUnitImage = code => images.units[code]
+export const getHeroImage = code => heroesImages[code]
+export const getUnitImage = code => unitsImages[code]
+export const getHeroSkillImage = code => heroeSkillsImages[code]
+export const getHeroSkill = code => heroSkillInfo[code]

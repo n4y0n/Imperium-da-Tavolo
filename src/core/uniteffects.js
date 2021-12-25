@@ -2,10 +2,9 @@ import { stages } from "./utils"
 
 const effects = {}
 
-const esempioNome = 'example'
 const esempioEffetto = {
     cost: 1,
-    apply: function ({ self, other, logs }) {
+    apply: function ({ self, other, logs, selfPlayer, iteration }) {
     }
 }
 
@@ -20,7 +19,7 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
         cost: 1,
         apply: ({ self, logs }) => {
             const new_def = (self.energy * 2);
-            logs.push(`${self.name} aumenta la sua difesa di: ${new_def}`);
+            logs.push(`${self.name} aumenta la sua difesa di: ${new_def.toFixed(2)}`);
             self.def += new_def;
             return true;
         }
@@ -29,7 +28,7 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
         cost: 1,
         apply: ({ self, logs }) => {
             const new_atk = (self.energy * 2);
-            logs.push(`${self.name} aumenta il suo attacco di: ${new_atk}`);
+            logs.push(`${self.name} aumenta il suo attacco di: ${new_atk.toFixed(2)}`);
             self.atk += new_atk;
             return true;
         }
@@ -57,7 +56,7 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
         cost: 1,
         apply: ({ self, logs, other }) => {
             const new_atk = self.atk * 3;
-            logs.push(`${self.name} usa triple_strike ed infligge ${new_atk} danni ad ${other.name}`);
+            logs.push(`${self.name} usa triple_strike ed infligge ${new_atk.toFixed(2)} danni ad ${other.name}`);
             self.atk = new_atk;
             return true;
         }
@@ -66,16 +65,8 @@ effects[stages.BEFORE_DAMAGE_COMPUTE] = {
         cost: 1,
         apply: ({ self, logs, other }) => {
             const new_atk = self.atk + self.level;
-            logs.push(`${self.name} usa offensive_tactics ed infligge ${new_atk} danni ad ${other.name}`);
+            logs.push(`${self.name} usa offensive_tactics ed infligge ${new_atk.toFixed(2)} danni ad ${other.name}`);
             self.atk = new_atk;
-            return true;
-        }
-    },
-    cripple_off: {
-        cost: 1,
-        apply: ({ self, logs, other }) => {
-            logs.push(`${self.name} usa cripple_off e manda a 0 l'energia di ${other.name}`);
-            other.energy = 0;
             return true;
         }
     },
@@ -86,7 +77,7 @@ effects[stages.AFTER_DAMAGE_COMPUTE] = {
     spike_armor: {
         cost: 1,
         apply: ({ self, other, logs }) => {
-            logs.push(`${self.name} usa mirror_damage riflettendo ${self.damage}hp di danno [${self.energy - 1}ep]`)
+            logs.push(`${self.name} usa mirror_damage riflettendo ${self.damage.toFixed(2)}hp di danno [${self.energy - 1}ep]`)
             other.damage += self.damage;
             return true;
         }
@@ -95,7 +86,7 @@ effects[stages.AFTER_DAMAGE_COMPUTE] = {
         cost: 4,
         apply: ({ self, logs, other }) => {
             if (other.hp < (other.maxHp * 0.2) && !other.isHero) {
-                logs.push(`${self.name} usa death_blow eliminando ${other.name} che aveva ${other.hp}hp.`)
+                logs.push(`${self.name} usa death_blow eliminando ${other.name} che aveva ${other.hp.toFixed(2)}hp.`)
                 other.damage += other.hp + 1;
                 return true;
             }
@@ -107,28 +98,8 @@ effects[stages.AFTER_DAMAGE_COMPUTE] = {
             if (other.isHero)
                 return;
             const new_damage = other.maxHp * 0.1;
-            logs.push(`${self.name} usa bleeding attack ed infligge ${new_damage} danni.`)
+            logs.push(`${self.name} usa bleeding attack ed infligge ${new_damage.toFixed(2)} danni.`)
             other.damage += new_damage;
-            return true;
-        }
-    },
-    power_strike: {
-        cost: 4,
-        apply: ({ self, logs, other }) => {
-            if(other.isHero || self.hp <= other.hp * 2)
-                return;
-            logs.push(`${self.name} usa bleeding attack ed infligge ${new_damage} danni.`)
-            other.damage += other.hp + 1;
-            return true;
-        }
-    },
-    charge: {
-        cost: 0,
-        apply: ({ self, logs, other }) => {
-            if(context.iteration != 1)
-                return;        
-            logs.push(`${self.name} usa charge ed infligge: ${self.atk * 8} danni.`);
-            other.damage = self.atk * 8;
             return true;
         }
     },
@@ -139,7 +110,7 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         cost: 1,
         apply: ({ self, other, logs }) => {
             if (other.skills.includes('penetration') && other.energy > 0) return;
-            logs.push(`${self.name} usa deflection annullando ${self.damage}hp di danno [${self.energy - 1}ep]`)
+            logs.push(`${self.name} usa deflection annullando ${self.damage.toFixed(2)}hp di danno [${self.energy - 1}ep]`)
             self.hp += self.damage;
             return true
         }
@@ -150,7 +121,7 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
             if (self.hp > self.maxHp * 0.75)
                 return;
             const add_hp = self.maxHp * 0.25;
-            logs.push(`${self.name} usa regeneration e si cura di ${add_hp}hp`)
+            logs.push(`${self.name} usa regeneration e si cura di ${add_hp.toFixed(2)}hp`)
             self.hp += add_hp;
             return true;
         }
@@ -178,9 +149,9 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
     life_steal: {
         cost: 1,
         apply: ({ self, logs, other }) => {
-            logs.push(`${self.name} si cura di ${other.damage}hp`)
+            logs.push(`${self.name} si cura di ${other.damage.toFixed(2)}hp`)
             self.hp += other.damage;
-            if(self.hp > self.maxHp)
+            if (self.hp > self.maxHp)
                 self.hp = self.maxHp;
             return true;
         }
@@ -189,9 +160,10 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         cost: 0,
         apply: ({ self, logs }) => {
             logs.push(`${self.name} usa determination e ripristina 1 punto energia.`)
-            self.energy += 1;
-            if(self.energy > self.maxEnergy)
-                self.energy = self.maxEnergy;
+            self.energy++;
+            if (self.energy > self.maxEnergy) {
+                self.energy = self.maxEnergy
+            }
             return true;
         }
     },
@@ -199,34 +171,28 @@ effects[stages.AFTER_DAMAGE_APPLY] = {
         cost: 0,
         apply: ({ self, logs }) => {
             logs.push(`${self.name} usa combat_skill e ripristina 1 punto energia.`)
-            self.energy += 1;
-            if(self.energy > self.maxEnergy)
-                self.energy = self.maxEnergy;
+            self.energy++;
+            if (self.energy > self.maxEnergy) {
+                self.energy = self.maxEnergy
+            }
             return true;
         }
     },
     drain: {
-        cost: 1,
-        apply: ({ self, logs, other }) => {
-            other.energy -= 2;
-            if (other.energy < 0)
-                other.energy = 0;
-            logs.push(`${self.name} usa drain e riduce di 2 l'energia dell'avversario. ${other.energy}`)
-            return true;
-        }
-    },
-    ferocity: {
         cost: 0,
         apply: ({ self, logs, other }) => {
-            if(other.hp > 0)
-                return;
-            self.energy = self.maxEnergy;
-            logs.push(`${self.name} usa ferocity e ripristina tutta l'energia.`);
+            self.energy -= 2;
+            if (self.energy < 0) {
+                self.energy = 0
+            }
+            logs.push(`${self.name} usa drain e riduce di 2 l'energia dell'avversario. ${other.energy.toFixed(2)}`)
             return true;
         }
     },
 }
 
+effects[stages.REAR_EFFECT] = {
+}
 
 
 //CIAO!!!!

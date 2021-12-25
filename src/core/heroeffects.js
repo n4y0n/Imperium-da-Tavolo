@@ -2,10 +2,9 @@ import { stages } from "./utils"
 
 const effects = {}
 
-const esempioNome = 'example'
 const esempioEffetto = {
     cost: 1,
-    apply: function ({ self, other, logs }) {
+    apply: function ({ self, other, logs, selfPlayer, iteration }) {
     }
 }
 
@@ -24,8 +23,9 @@ effects[stages.AFTER_DAMAGE_COMPUTE] = {
 }
 
 effects[stages.AFTER_DAMAGE_APPLY] = {
-
 }
 
+effects[stages.REAR_EFFECT] = {
+}
 
 export default effects

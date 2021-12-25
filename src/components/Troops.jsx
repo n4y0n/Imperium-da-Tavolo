@@ -4,11 +4,11 @@ function TroopComp({ troop }) {
     )
 }
 
-export default function TroopsComp({ troops }) {
+export default function TroopsComp({ troops, player }) {
     return (
         <div className='my-5 flex flex-row justify-center gap-4'>
             {Object.entries(troops).map(([key, troop]) => (
-                <div className="text-left" key={troop.name+key}>
+                <div className="text-left" key={troop.name + key}>
                     <span>Pos: {key} - </span>
                     <TroopComp key={key + troop.name} troop={troop} />
                 </div>
