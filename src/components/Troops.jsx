@@ -6,7 +6,7 @@ function TroopComp({ troop }) {
     )
 }
 
-export default function TroopsComp({ player }) {
+export default function({ player }) {
     const troops = useSelector(state => state.game[player].troops)
 
     return (

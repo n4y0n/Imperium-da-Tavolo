@@ -53,7 +53,7 @@ function HeroStats({ player }) {
 }
 
 
-function Simulazione({ logs }) {
+export default function({ logs }) {
     const dispatch = useDispatch()
     const inProgress = useSelector(state => state.game.simulation.inProgress)
     const [isPaused, setIsPaused] = useState(false)
@@ -133,5 +133,3 @@ function Simulazione({ logs }) {
         </div>
     )
 }
-
-export default Simulazione

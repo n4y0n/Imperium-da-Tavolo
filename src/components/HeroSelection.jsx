@@ -1,5 +1,6 @@
 import heroes from '../assets/heroes'
 import { getHeroImage } from '../core/assets'
+import Dropdown from './Dropdown'
 
 function HeroItem({ hero, onChange }) {
     return (
@@ -25,19 +26,13 @@ function HeroList({ civ, onChange }) {
     )
 }
 
-function HeroSelectComp({ onChange, civ, onCivChange }) {
-    const defCiv = Object.keys(heroes)?.[0]
-
+export default function ({ onChange, civ, onCivChange }) {
     return (
         <div className='bg-gray-300 flex flex-col items-center justify-center'>
-            <select defaultValue={defCiv} className='my-2' onChange={e => onCivChange(e.target.value)}>
-                {Object.keys(heroes).map(civ => <option key={civ} value={civ}>{civ}</option>)}
-            </select>
+            <Dropdown values={Object.keys(heroes)} value={civ} onChange={onCivChange} />
             <hr />
             <h1 className='text-2xl font-bold mt-2'>Eroi disponibili [{civ}]</h1>
             <HeroList civ={civ} onChange={onChange} />
         </div>
     )
 }
-
-export default HeroSelectComp

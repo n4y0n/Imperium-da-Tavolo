@@ -24,7 +24,7 @@ function HeroInfo({ hero }) {
     )
 }
 
-function HeroComp({ player, children }) {
+export default function({ player, children }) {
     const hero = useSelector(state => state.game[player].hero)
     return (
         <section className='grid grid-cols-2 items-center my-4'>
@@ -37,5 +37,3 @@ function HeroComp({ player, children }) {
         </section>
     )
 }
-
-export default HeroComp

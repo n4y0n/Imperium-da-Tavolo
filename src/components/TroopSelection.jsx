@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { getUnitImage } from '../core/assets'
 import { useSelector, useDispatch } from 'react-redux';
 import { setTroop, setTroopPointer } from '../store/game'
+import Dropdown from './Dropdown';
 
 function UnitaDisponibili({ civ, onSelected }) {
   if (!civ) return null
@@ -37,7 +38,7 @@ function UnitaDisponibili({ civ, onSelected }) {
   )
 }
 
-function TroopSelectComp({ player }) {
+export default function ({ player }) {
   const dispatch = useDispatch()
   const hero = useSelector(state => state.game[player].hero)
   const selectedTroop = useSelector(state => state.game[player].troopPointer)
@@ -72,10 +73,8 @@ function TroopSelectComp({ player }) {
 
   return (
     <div className='mt-4'>
-      <form className='flex justify-center gap-2'>
-        <select defaultValue={hero.civ} className='align-bottom' onChange={e => setCiv(e.target.value)}>
-          {Object.keys(units).map(civ => <option key={civ + hero.name} value={civ}>{civ}</option>)}
-        </select>
+      <form className='flex justify-center items-center gap-2'>
+        <Dropdown values={Object.keys(units)} value={civ} onChange={setCiv} />
         {posizioni}
       </form>
       <h1 className='text-xl font-bold mt-2 text-center'>Truppe disponibili</h1>
@@ -83,5 +82,3 @@ function TroopSelectComp({ player }) {
     </div>
   )
 }
-
-export default TroopSelectComp

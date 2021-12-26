@@ -1,12 +1,12 @@
 import HeroComp from './Hero'
 import TroopsComp from './Troops'
-import TroopSelectComp from './TroopSelectComp'
-import HeroSelectComp from './HeroSelectComp'
+import TroopSelectComp from './TroopSelection'
+import HeroSelectComp from './HeroSelection'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectHero, selectCiv, reset } from '../store/game'
-import HeroSkillPanel from './HeroSkillPanelComp'
+import HeroSkillPanel from './HeroSkillPanel'
 
-export default function PlayerComp({ player }) {
+export default function({ player }) {
   const dispatch = useDispatch()
   const civ = useSelector(state => state.game[player].civ)
   const hero = useSelector(state => state.game[player].hero)

@@ -3,7 +3,7 @@ import heroskills from "../assets/heroskills";
 import { getHeroSkillImage } from "../core/assets";
 import { toggleHeroSkill } from '../store/game'
 
-export default function HeroSkillPanel({ player, hero }) {
+export default function({ player, hero }) {
     const dispatch = useDispatch()
     return (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(25px,1fr))] gap-3 m-2">
