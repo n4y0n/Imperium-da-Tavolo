@@ -1,12 +1,9 @@
 const TEMP_STACK = []
 
 export const stages = {
-    BEFORE_BATTLE: 'before_battle#',
-    BEFORE_DAMAGE_COMPUTE: 'before_damage_compute#',
-    BEFORE_REAR_DAMAGE_COMPUTE: 'before_rear_damage#',
-    AFTER_DAMAGE_COMPUTE: 'after_damage_compute#',
-    AFTER_DAMAGE_APPLY: 'after_damage#',
-    REAR_EFFECT: 'rear_effect#',
+    BEFORE_BATTLE: 'beforeBattle',
+    BEFORE_DAMAGE: 'beforeDamage',
+    AFTER_DAMAGE: 'afterDamage',
 }
 
 export const actors = {
