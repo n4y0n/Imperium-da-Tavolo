@@ -1,6 +1,6 @@
 // Durante il conbattimento
 
-import { playerDead, popValue, pushValue, stages, truppaCattiva, playerFighter, getRearDamagePercent } from "./utils";
+import { playerDead, stages, truppaCattiva, playerFighter, getRearDamagePercent } from "./utils";
 import { applyEffect } from "./effects";
 
 const TURNS_PER_ENERGY_RECOVER = 4;
@@ -38,21 +38,24 @@ export function* createSimulation(ctx, alice, bob) {
     bob.troop.hp += 5 * bob.hero.level
   }
 
-  // Applica le single-use skill
-  for (let skill of alice.hero.skills)
-    applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
-  for (let skill of bob.hero.skills)
-    applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
-  for (let skill of alice.hero.items)
-    applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
-  for (let skill of bob.hero.items)
-    applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
-  if (alice.troop)
-    for (let skill of alice.troop.skills)
-      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx))
-  if (bob.troop)
-    for (let skill of bob.troop.skills)
-      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(bob, alice, ctx))
+  if (ctx.singleUseSkills) {
+    ctx.singleUseSkills = false
+    // Applica le single-use skill
+    for (let skill of alice.hero.skills)
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
+    for (let skill of bob.hero.skills)
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
+    for (let skill of alice.hero.items)
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
+    for (let skill of bob.hero.items)
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
+    if (alice.troop)
+      for (let skill of alice.troop.skills)
+        applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx))
+    if (bob.troop)
+      for (let skill of bob.troop.skills)
+        applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(bob, alice, ctx))
+  }
 
   do {
     if (ctx.iteration === 1) {
@@ -73,17 +76,21 @@ export function* createSimulation(ctx, alice, bob) {
       ctx.logs.push(`--------------------------------------------`);
     }
 
-    if (ctx.iteration % atroop.recoverTime === 0) {
-      atroop.energy += atroop.recoverAmount
-      if (atroop.energy > atroop.maxEnergy) {
-        atroop.energy = atroop.maxEnergy
+    for (const troop of alice.troops) {
+      if (ctx.iteration % troop.recoverTime === 0) {
+        troop.energy += troop.recoverAmount
+        if (troop.energy > troop.maxEnergy) {
+          troop.energy = troop.maxEnergy
+        }
       }
     }
 
-    if (ctx.iteration % btroop.recoverTime === 0) {
-      btroop.energy += btroop.recoverAmount
-      if (btroop.energy > btroop.maxEnergy) {
-        btroop.energy = btroop.maxEnergy
+    for (const troop of bob.troops) {
+      if (ctx.iteration % troop.recoverTime === 0) {
+        troop.energy += troop.recoverAmount
+        if (troop.energy > troop.maxEnergy) {
+          troop.energy = troop.maxEnergy
+        }
       }
     }
 
@@ -107,9 +114,6 @@ export function* createSimulation(ctx, alice, bob) {
   yield ctx
 }
 
-// TODO: RESET REAR ATK, DEF
-// TODO: RECOVER REAR ENERGY
-
 function turn(ctx, alice, bob) {
   const logs = ctx.logs;
   const self = playerFighter(alice)
@@ -117,20 +121,16 @@ function turn(ctx, alice, bob) {
   self["damage"] = 0;
   enemy["damage"] = 0;
 
-  pushState(self)
-  pushState(enemy)
+  pushState(alice)
+  pushState(bob)
 
-  applySkills(stages.BEFORE_DAMAGE_COMPUTE, alice, bob, ctx)
-
-  computeDamage(alice, bob);
-  computeDamage(bob, alice);
-
-  applySkills(stages.BEFORE_REAR_DAMAGE_COMPUTE, alice, bob, ctx)
+  applySkills(stages.BEFORE_DAMAGE, alice, bob, ctx)
 
   computeRearDamage(bob, alice)
   computeRearDamage(alice, bob)
 
-  applySkills(stages.AFTER_DAMAGE_COMPUTE, alice, bob, ctx)
+  computeDamage(alice, bob);
+  computeDamage(bob, alice);
 
   logs.push(`${self.name} [${self.hp.toFixed(2)}hp] -> ${enemy.name} [${enemy.hp.toFixed(2)}hp] -${enemy.damage.toFixed(2)}hp ${(enemy.hp - enemy.damage).toFixed(2)}`)
   logs.push(`${enemy.name} [${enemy.hp.toFixed(2)}hp] -> ${self.name} [${self.hp.toFixed(2)}hp] -${self.damage.toFixed(2)}hp ${(self.hp - self.damage).toFixed(2)}`)
@@ -138,11 +138,10 @@ function turn(ctx, alice, bob) {
   self.hp -= self.damage;
   enemy.hp -= enemy.damage;
 
-  applySkills(stages.AFTER_DAMAGE_APPLY, alice, bob, ctx)
-  applySkills(stages.REAR_EFFECT, alice, bob, ctx)
+  applySkills(stages.AFTER_DAMAGE, alice, bob, ctx)
 
-  popState(enemy)
-  popState(self)
+  popState(bob)
+  popState(alice)
 }
 
 export function fastSimulate(ctx, alice, bob) {
@@ -167,13 +166,10 @@ function computeDamage(alice, bob) {
 
 function computeRearDamage(alice, bob) {
   const enemy = playerFighter(bob)
-  const tmp = enemy.damage;
-  enemy.damage = 0;
   for (const rear of alice.rears) {
     const damage = (rear.atk - ((rear.atk / 100) * enemy.def)) * getRearDamagePercent(rear);
     enemy.damage += damage
   }
-  enemy.damage += tmp
 }
 
 function setupEffectContext(self, enemy, ctx, def = 'troop') {
@@ -196,12 +192,30 @@ function applySkills(stage, alice, bob, ctx) {
   }
 }
 
-function pushState(troop) {
-  pushValue(troop.atk)
-  pushValue(troop.def)
+const TEMP_STACK = []
+function pushState(player) {
+  for (const troop of player.rears) {
+    TEMP_STACK.push(troop.atk)
+    TEMP_STACK.push(troop.def)
+  }
+  if (player.troop) {
+    TEMP_STACK.push(player.troop.atk)
+    TEMP_STACK.push(player.troop.def)
+  }
+  TEMP_STACK.push(player.hero.atk)
+  TEMP_STACK.push(player.hero.def)
 }
 
-function popState(troop) {
-  troop.def = popValue()
-  troop.atk = popValue()
+function popState(player) {
+  player.hero.def = TEMP_STACK.pop()
+  player.hero.atk = TEMP_STACK.pop()
+  if (player.troop) {
+    player.troop.def = TEMP_STACK.pop()
+    player.troop.atk = TEMP_STACK.pop()
+  }
+  for (let i = player.rears.length - 1; i >= 0; i--) {
+    const troop = player.rears[i];
+    troop.def = TEMP_STACK.pop()
+    troop.atk = TEMP_STACK.pop()
+  }
 }

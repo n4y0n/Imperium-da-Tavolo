@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
-import { resetSimulation, simulateTick, fastFowardCurrentSimulation } from '../store/game'
+import { resetSimulation, simulateTick, fastFowardCurrentSimulation, resetSimulationLogs } from '../store/game'
 import HeroComp from './Hero'
 import TroopsComp from './Troops'
 
@@ -69,7 +69,7 @@ export default function({ logs }) {
         dispatch(fastFowardCurrentSimulation())
     }
     const nextBattle = () => {
-        dispatch(resetSimulation())
+        dispatch(resetSimulationLogs())
         dispatch(simulateTick())
     }
 

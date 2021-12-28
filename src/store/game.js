@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import heroes from '../assets/heroes'
 import { fastSimulate, createSimulation } from '../core/simulazione'
-import { getMaxTroops, lossyCopy, firstTroop, rearTroops } from "../core/utils"
+import { getMaxTroops, lossyCopy, firstTroop, rearTroops, flatten } from "../core/utils"
 const [defCiv, ...other] = Object.keys(heroes)
 
 let currentSimulation = null
@@ -24,6 +24,7 @@ const initialState = {
     simulation: {
         p1: null,
         p2: null,
+        singleUseSkills: true,
         inProgress: false,
         iteration: 1,
         error: null,
@@ -87,6 +88,14 @@ const slice = createSlice({
                 skills.push(skill.id)
             }
         },
+        resetSimulationLogs: state => {
+            state.p1.troops = Object.entries(state.p1.troops).filter(e => e[1].hp > 0).reduce((o, n) => { o[n[0]] = n[1]; return o }, {})
+            state.p2.troops = Object.entries(state.p2.troops).filter(e => e[1].hp > 0).reduce((o, n) => { o[n[0]] = n[1]; return o }, {})
+            if (state.p1.hero.hp <= 0) state.p1.hero = null
+            if (state.p2.hero.hp <= 0) state.p2.hero = null
+            currentSimulation = null;
+            state.simulation.logs = []
+        }
     },
     extraReducers: builder => {
         builder
@@ -102,6 +111,7 @@ const slice = createSlice({
                 state.p2.troops = payload.p2.troops;
 
                 state.simulation = payload;
+                state.simulation.singleUseSkills = payload.singleUseSkills;
                 state.simulation.inProgress = false;
             })
             .addCase(simulate.rejected, (state, { error }) => {
@@ -135,8 +145,8 @@ const slice = createSlice({
 
                 state.p1.troops = payload.p1.troops;
                 state.p2.troops = payload.p2.troops;
-
                 state.simulation = payload;
+
                 currentSimulation = null;
                 state.simulation.inProgress = false;
             })
@@ -158,7 +168,8 @@ export const {
     setItems,
     setSkills,
     setTroopPointer,
-    toggleHeroSkill
+    toggleHeroSkill,
+    resetSimulationLogs,
 } = slice.actions
 
 export const simulate = createAsyncThunk('game/simulate', async (arg, { getState }) => {
@@ -241,7 +252,7 @@ function setupContext({ p1, p2, simulation }) {
 }
 
 function setupPlayer(name, playerData) {
-    return { hero: playerData.hero, troop: firstTroop(playerData), rears: rearTroops(playerData), player: name }
+    return { hero: playerData.hero, troop: firstTroop(playerData), troops: flatten(playerData.troops), rears: rearTroops(playerData), player: name }
 }
 
 function assertHero(player) {

@@ -1,4 +1,3 @@
-const TEMP_STACK = []
 
 export const stages = {
     BEFORE_BATTLE: 'beforeBattle',
@@ -36,14 +35,6 @@ export function playerFighter(player) {
     return troop
 }
 
-export function pushValue(val) {
-    return TEMP_STACK.push(lossyCopy(val))
-}
-
-export function popValue() {
-    return TEMP_STACK.pop()
-}
-
 export function lossyCopy(value) {
     return JSON.parse(JSON.stringify(value))
 }
@@ -79,4 +70,12 @@ export function getRearDamagePercent(troop) {
     switch (troop.position) {
         default: return .2;
     }
+}
+
+export function flatten(object) {
+    const flattened = []
+    for (const [key, item] of Object.entries(object)) {
+        flattened.push({ ...item, position: key })
+    }
+    return flattened
 }
