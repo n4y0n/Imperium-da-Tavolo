@@ -3,9 +3,6 @@
 import { playerDead, stages, truppaCattiva, playerFighter, getRearDamagePercent, actors } from "./utils";
 import { applyEffect } from "./effects";
 
-const TURNS_PER_ENERGY_RECOVER = 4;
-
-
 // Effetti
 // Hero Level, Oggetti, Skills (Eroe), Skills (Truppe)
 
