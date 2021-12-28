@@ -18,7 +18,8 @@ import { applyEffect } from "./effects";
 // Eseguo le skill
 // Applico il danno
 
-export function* createSimulation(ctx, alice, bob) {
+export function* createSimulation(ctx) {
+  const { alice, bob } = ctx;
   ctx.logs.push("Inizio simulazione!")
   ctx.logs.push(`Scontro tra Alice con ${alice.hero.name} e Bob con ${bob.hero.name}`)
   const atroop = playerFighter(alice)
@@ -73,6 +74,8 @@ export function* createSimulation(ctx, alice, bob) {
       ctx.logs.push(`--------------------------------------------`);
     }
 
+    turn(ctx, alice, bob)
+
     for (const troop of alice.troops) {
       if (ctx.iteration % troop.recoverTime === 0) {
         troop.energy += troop.recoverAmount
@@ -90,8 +93,6 @@ export function* createSimulation(ctx, alice, bob) {
         }
       }
     }
-
-    turn(ctx, alice, bob)
     ctx.iteration++;
     yield ctx
   } while (!playerDead(alice) && !playerDead(bob));
@@ -141,11 +142,16 @@ function turn(ctx, alice, bob) {
   popState(alice)
 }
 
-export function fastSimulate(ctx, alice, bob) {
-  const simulation = createSimulation(ctx, alice, bob)
+export function fastSimulate(ctx) {
+  const simulation = createSimulation(ctx)
+  let lastState = null
 
   // Fast foward simulation until it ends
-  for (let state of simulation);
+  for (let state of simulation) {
+    lastState = state;
+  }
+
+  return lastState;
 }
 
 /**

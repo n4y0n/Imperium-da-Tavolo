@@ -23,7 +23,7 @@ const effects = {
 		cost: cost.deflection,
 		[stages.BEFORE_DAMAGE]: ({ self, other, logs }) => {
 			if (other.skills.includes('penetration') && other.energy > 0) return;
-			logs.push(`${self.name} usa deflection annullando ${self.damage.toFixed(2)}hp di danno [${self.energy - 1}ep]`)
+			logs.push(`${self.name} usa deflection annullando il danno`)
 			self.def = 100;
 			return true
 		}

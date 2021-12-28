@@ -44,23 +44,19 @@ export function isRearTroop(troop) {
     return troop.isRear
 }
 
-export function firstTroop({ hero, troops }) {
-    for (let position = 0; position < getMaxTroops(hero.civ); position++) {
-        const troop = troops[position];
+export function firstTroop(troops) {
+    for (let troop of troops) {
         if (troop && troop.hp > 0) {
-            troop['position'] = position
             return troop
         }
     }
     return null
 }
 
-export function rearTroops({ hero, troops }) {
+export function rearTroops(troops) {
     const rears = []
-    for (let position = 0; position < getMaxTroops(hero.civ); position++) {
-        const troop = troops[position];
+    for (let troop of troops) {
         if (troop && troop.hp > 0 && isRearTroop(troop)) {
-            troop['position'] = position
             rears.push(troop)
         }
     }

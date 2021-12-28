@@ -6,7 +6,7 @@ function applyEffectImpl(actor, stage, code, context) {
     if (!code) return
     const effectsMap = (actor !== actors.HERO ? unitEffects : heroEffects);
     if (effectsMap?.[code]) {
-        if (context.self.isHero || context.self.energy > effectsMap[code].cost) {
+        if (context.self.isHero || context.self.energy >= effectsMap[code].cost) {
             if (effectsMap[code]?.[stage]?.(context)) {
                 context.self.energy -= effectsMap[code].cost
             }
