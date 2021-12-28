@@ -124,9 +124,7 @@ function turn(ctx, alice, bob) {
   pushState(alice)
   pushState(bob)
 
-  applyRearSkills(stages.BEFORE_DAMAGE, alice, bob, ctx)
-  applyRearSkills(stages.BEFORE_DAMAGE, bob, alice, ctx)
-  applySkills(stages.BEFORE_DAMAGE, alice, bob, ctx)
+  applyAllSkills(stages.BEFORE_DAMAGE, alice, bob, ctx)
 
   computeRearDamage(bob, alice)
   computeRearDamage(alice, bob)
@@ -140,9 +138,7 @@ function turn(ctx, alice, bob) {
   self.hp -= self.damage;
   enemy.hp -= enemy.damage;
 
-  applySkills(stages.AFTER_DAMAGE, alice, bob, ctx)
-  applyRearSkills(stages.AFTER_DAMAGE, alice, bob, ctx)
-  applyRearSkills(stages.AFTER_DAMAGE, bob, alice, ctx)
+  applyAllSkills(stages.AFTER_DAMAGE, alice, bob, ctx)
 
   popState(bob)
   popState(alice)
@@ -178,23 +174,18 @@ function computeRearDamage(alice, bob) {
 
 function setupEffectContext(self, enemy, ctx, def = actors.TROOP) {
   if (def === actors.TROOP)
-    return { self: playerFighter(self), selfPlayer: self, other: playerFighter(enemy), ...ctx }
+    return { self: playerFighter(self), selfPlayer: self, other: playerFighter(enemy), otherPlayer: enemy, ...ctx }
   if (def === actors.HERO)
-    return { self: self.hero, selfPlayer: self, other: playerFighter(enemy), ...ctx }
+    return { self: self.hero, selfPlayer: self, other: playerFighter(enemy), otherPlayer: enemy, ...ctx }
   if (def === actors.REAR)
-    return { self: self, selfPlayer: self.player, other: playerFighter(enemy), ...ctx }
+    return { self: self, selfPlayer: self.player, other: playerFighter(enemy), otherPlayer: enemy, ...ctx }
 }
 
 function applySkills(stage, alice, bob, ctx) {
   const atroop = playerFighter(alice)
-  const btroop = playerFighter(bob)
   for (const code of atroop.skills) {
     if (!code) continue
     applyEffect(stage, code, setupEffectContext(alice, bob, ctx))
-  }
-  for (const code of btroop.skills) {
-    if (!code) continue
-    applyEffect(stage, code, setupEffectContext(bob, alice, ctx))
   }
 }
 
@@ -207,6 +198,13 @@ function applyRearSkills(stage, alice, bob, ctx) {
       delete rear['player']
     }
   }
+}
+
+function applyAllSkills(stage, alice, bob, ctx) {
+  applyRearSkills(stage, alice, bob, ctx)
+  applyRearSkills(stage, bob, alice, ctx)
+  applySkills(stage, alice, bob, ctx)
+  applySkills(stage, bob, alice, ctx)
 }
 
 const TEMP_STACK = []
