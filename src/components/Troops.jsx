@@ -1,10 +1,5 @@
 import { useSelector } from "react-redux"
-
-function TroopComp({ troop }) {
-    return (
-        <span>{troop.name.split('_').join(' ')}</span>
-    )
-}
+import TroopComp from './Troop'
 
 export default function({ player }) {
     const troops = useSelector(state => state.game[player].troops)

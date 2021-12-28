@@ -1,12 +1,12 @@
 import { useSelector } from 'react-redux'
-import { getHeroImage, getHeroSkill, getHeroSkillImage } from '../core/assets'
+import { getHeroImage, getHeroSkill, getHeroItem } from '../core/assets'
 
-function HeroInfo({ hero }) {
+function HeroInfo({ hero, children }) {
     return (
-        <div className='flex gap-1'>
-            <div className='flex gap-1 flex-shrink-0'>
+        <div className='flex items-center'>
+            <div className='flex gap-3 flex-shrink-0'>
                 <div className='flex items-center'>
-                    <img src={getHeroImage(hero.image)} className='w-36' />
+                    <img src={getHeroImage(hero.image)} className='w-28' />
                 </div>
                 <div className='flex flex-col justify-center'>
                     <h2 className='font-bold text-xl'>{hero.name} [LV{hero.level}]</h2>
@@ -15,25 +15,27 @@ function HeroInfo({ hero }) {
                     <p>DEF: {hero.def.toFixed(2)}</p>
                 </div>
             </div>
-            <div className='overflow-y-scroll'>
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(25px,1fr))] gap-3 m-2">
-                    {hero.skills.map(id => getHeroSkill(id)).map((skill) => <img className='cursor-pointer' title={skill.description} key={skill.id + hero.id} src={getHeroSkillImage(skill.id)} alt={skill.name} />)}
-                </div>
+            <div className='h-full'>
+                {children}
             </div>
         </div>
     )
 }
 
-export default function({ player, children }) {
+export default function ({ player }) {
     const hero = useSelector(state => state.game[player].hero)
     return (
-        <section className='grid grid-cols-2 items-center my-4'>
-            <div className='border-2  min-h-full m-2 flex items-center'>
-                <HeroInfo hero={hero} />
-            </div>
-            <div className='border-2  min-h-full m-2 flex items-center'>
-                {children}
-            </div>
-        </section>
+        <div className='border-2 gap-4 min-h-full m-2 flex items-center'>
+            <HeroInfo hero={hero}>
+                <div className='flex gap-5'>
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(25px,1fr))] gap-3 m-2 overflow-y-scroll">
+                        {hero.skills.map(id => getHeroSkill(id)).map((skill) => <img className='cursor-pointer' title={skill.description} key={skill.id + hero.id} src={skill.img} alt={skill.name} />)}
+                    </div>
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(25px,1fr))] gap-3 m-2 overflow-y-scroll">
+                        {hero.items.map(id => getHeroItem(id)).map((item) => <img className='cursor-pointer' title={item.description} key={item.id + hero.id} src={item.img} alt={item.name} />)}
+                    </div>
+                </div>
+            </HeroInfo>
+        </div>
     )
 }

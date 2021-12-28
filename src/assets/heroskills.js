@@ -1,5 +1,7 @@
 import csv_file from './skill_hero.csv'
 
+import not_found from './anonymous.jpg'
+
 // SKILL ICONS HERO
 import administration from './skill_icon_hero/administration.png'
 import assault from './skill_icon_hero/assault.png'
@@ -8,9 +10,6 @@ import ceasefire from './skill_icon_hero/ceasefire.png'
 import charge from './skill_icon_hero/charge.png'
 import defensivecry from './skill_icon_hero/defensivecry.png'
 import divinegrace from './skill_icon_hero/divine_grace.png'
-// import concealment from './skill_icon_hero/concealment.png'
-import concealment from './anonymous.jpg'
-
 import dodge from './skill_icon_hero/dodge.png'
 import epicarmor from './skill_icon_hero/epicarmor.png'
 import epicattack from './skill_icon_hero/epicattack.png'
@@ -30,7 +29,6 @@ import wisdom from './skill_icon_hero/wisdom.png'
 
 export const images = {
     administration,
-    concealment,
     assault,
     battlecry,
     ceasefire,
@@ -61,6 +59,10 @@ for (const { ID, ID_STRING, NOME, EFFETTO, IMG } of csv_file) {
         id: ID_STRING,
         description: EFFETTO,
         image: IMG
+    }
+
+    if (!images[ID_STRING]) {
+        images[ID_STRING] = not_found;
     }
 }
 export default info

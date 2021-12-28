@@ -1,5 +1,6 @@
 import csv_file from './imperivm_hero_stats.csv'
 import { getMaxTroops } from '../core/utils'
+import conf from '../core/configs'
 
 import b_hero1 from './heroes/britannia/b_hero1.png'
 import b_hero2 from './heroes/britannia/b_hero2.png'
@@ -83,9 +84,9 @@ for (const element of csv_file) {
     if (!civ) continue
 
     if (unitas[civ]) {
-        unitas[civ].push({ name, id: nome, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, maxEnergy: 10, skills: [], maxTroops: getMaxTroops(civ), level: 0, image: img, maxHp: parseInt(hp), isHero: true, items: [] })
+        unitas[civ].push({ name, id: nome, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: conf.MAX_ENERY, maxEnergy: conf.MAX_ENERY, skills: [], maxTroops: getMaxTroops(civ), level: 0, image: img, maxHp: parseInt(hp), isHero: true, recoverTime: conf.RECOVERY_TIME, recoverAmount: conf.RECOVERY_AMOUNT, items: [] })
     } else {
-        unitas[civ] = [{ name, id: nome, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, maxEnergy: 10, skills: [], maxTroops: getMaxTroops(civ), level: 0, image: img, maxHp: parseInt(hp), isHero: true, items: [] }]
+        unitas[civ] = [{ name, id: nome, hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: conf.MAX_ENERY, maxEnergy: conf.MAX_ENERY, skills: [], maxTroops: getMaxTroops(civ), level: 0, image: img, maxHp: parseInt(hp), isHero: true, recoverTime: conf.RECOVERY_TIME, recoverAmount: conf.RECOVERY_AMOUNT, items: [] }]
     }
 }
 

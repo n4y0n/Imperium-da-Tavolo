@@ -26,9 +26,7 @@ export default function({ player }) {
     <div>
       <button className="min-w-full bg-gray-500 p-4 shadow-md active:shadow-sm active:bg-gray-300" onClick={() => dispatch(reset({ player }))}>Reset</button>
       <div>
-        <HeroComp player={player}>
-          <HeroSkillPanel player={player} hero={hero} />
-        </HeroComp>
+        <HeroComp player={player} />
         <hr />
         <TroopsComp player={player} />
         <hr />

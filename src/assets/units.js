@@ -1,4 +1,5 @@
 import csv_file from './imperivm_stats.csv'
+import conf from '../core/configs'
 
 import b_arciere from './units/britannia/b_arciere.png'
 import b_caledone from './units/britannia/b_caledone.png'
@@ -133,9 +134,9 @@ for (const { nome, hp, atk, def, image, ability1, ability2, rear } of csv_file) 
     if (!civ) continue
 
     if (unitas[civ]) {
-        unitas[civ].push({ name: name.split('_').join(' '), id: nome, isHero: false, isRear: rear === "true", maxHp: parseInt(hp), hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, maxEnergy: 10, skills: [ability1.toLowerCase(), ability2.toLowerCase()], image })
+        unitas[civ].push({ name: name.split('_').join(' '), id: nome, isHero: false, isRear: rear === "true", maxHp: parseInt(hp), hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: conf.MAX_ENERY, maxEnergy: conf.MAX_ENERY, skills: [ability1.toLowerCase(), ability2.toLowerCase()], recoverTime: conf.RECOVERY_TIME, recoverAmount: conf.RECOVERY_AMOUNT, image })
     } else {
-        unitas[civ] = [{ name: name.split('_').join(' '), id: nome, isHero: false, isRear: rear === "true", maxHp: parseInt(hp), hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: 10, maxEnergy: 10, skills: [ability1.toLowerCase(), ability2.toLowerCase()], image }]
+        unitas[civ] = [{ name: name.split('_').join(' '), id: nome, isHero: false, isRear: rear === "true", maxHp: parseInt(hp), hp: parseInt(hp), atk: parseInt(atk), def: parseInt(def), civ, energy: conf.MAX_ENERY, maxEnergy: conf.MAX_ENERY, skills: [ability1.toLowerCase(), ability2.toLowerCase()], recoverTime: conf.RECOVERY_TIME, recoverAmount: conf.RECOVERY_AMOUNT, image }]
     }
 }
 export default unitas

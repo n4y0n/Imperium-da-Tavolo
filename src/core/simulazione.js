@@ -73,13 +73,15 @@ export function* createSimulation(ctx, alice, bob) {
       ctx.logs.push(`--------------------------------------------`);
     }
 
-    if (ctx.iteration % TURNS_PER_ENERGY_RECOVER === 0) {
-      atroop.energy++
-      btroop.energy++
-
+    if (ctx.iteration % atroop.recoverTime === 0) {
+      atroop.energy += atroop.recoverAmount
       if (atroop.energy > atroop.maxEnergy) {
         atroop.energy = atroop.maxEnergy
       }
+    }
+
+    if (ctx.iteration % btroop.recoverTime === 0) {
+      btroop.energy += btroop.recoverAmount
       if (btroop.energy > btroop.maxEnergy) {
         btroop.energy = btroop.maxEnergy
       }
@@ -104,6 +106,9 @@ export function* createSimulation(ctx, alice, bob) {
   ctx.logs.push("Fine simulazione!")
   yield ctx
 }
+
+// TODO: RESET REAR ATK, DEF
+// TODO: RECOVER REAR ENERGY
 
 function turn(ctx, alice, bob) {
   const logs = ctx.logs;
