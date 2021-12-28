@@ -8,10 +8,16 @@ export const getHeroImage = code => heroesImages[code]
 export const getUnitImage = code => unitsImages[code]
 
 export const getHeroSkillImage = code => heroeSkillsImages[code]
-export const getHeroSkill = code => heroSkillInfo[code]
+export const getHeroSkill = code => {
+    return { ...heroSkillInfo[code], img: getHeroSkillImage(code) }
+}
 
 export const getHeroItemImage = code => heroeItemsImages[code]
-export const getHeroItem = code => heroItemInfo[code]
+export const getHeroItem = code => {
+    return { ...heroItemInfo[code], img: getHeroItemImage(code) }
+}
 
 export const getUnitSkillImage = code => unitSkillsImages[code]
-export const getUnitSkill = code => unitSkillInfo[code]
+export const getUnitSkill = code => {
+    return { ...unitSkillInfo[code], img: getUnitSkillImage(code) }
+}

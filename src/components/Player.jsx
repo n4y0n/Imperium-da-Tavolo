@@ -5,8 +5,24 @@ import HeroSelectComp from './HeroSelection'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectHero, selectCiv, reset } from '../store/game'
 import HeroSkillPanel from './HeroSkillPanel'
+import HeroItemsPanel from './HeroItemsPanel'
 
-export default function({ player }) {
+function HeroEditComp({ player }) {
+  return (
+    <div className='flex flex-col m-5 justify-center'>
+      <div>
+        <h2>Skills</h2>
+        <HeroSkillPanel player={player} />
+      </div>
+      <div>
+        <h2>Items</h2>
+        <HeroItemsPanel player={player} />
+      </div>
+    </div>
+  )
+}
+
+export default function ({ player }) {
   const dispatch = useDispatch()
   const civ = useSelector(state => state.game[player].civ)
   const hero = useSelector(state => state.game[player].hero)
@@ -30,7 +46,10 @@ export default function({ player }) {
         <hr />
         <TroopsComp player={player} />
         <hr />
-        <TroopSelectComp player={player} />
+        <div>
+          <HeroEditComp player={player} />
+          <TroopSelectComp player={player} />
+        </div>
       </div>
     </div>
   )

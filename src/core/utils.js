@@ -7,7 +7,8 @@ export const stages = {
 
 export const actors = {
     HERO: 'hero',
-    TROOP: 'troop'
+    TROOP: 'troop',
+    REAR: 'rear',
 }
 
 export function getMaxTroops(civilization) {

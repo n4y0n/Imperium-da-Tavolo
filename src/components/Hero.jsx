@@ -24,15 +24,23 @@ function HeroInfo({ hero, children }) {
 
 export default function ({ player }) {
     const hero = useSelector(state => state.game[player].hero)
+    if (!hero) return null
+
     return (
         <div className='border-2 gap-4 min-h-full m-2 flex items-center'>
             <HeroInfo hero={hero}>
-                <div className='flex gap-5'>
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(25px,1fr))] gap-3 m-2 overflow-y-scroll">
-                        {hero.skills.map(id => getHeroSkill(id)).map((skill) => <img className='cursor-pointer' title={skill.description} key={skill.id + hero.id} src={skill.img} alt={skill.name} />)}
+                <div className='flex gap-5 overflow-x-hidden'>
+                    <div className="overflow-y-scroll">
+                        <h2>Skills</h2>
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(25px,1fr))] gap-3 m-2">
+                            {hero.skills.map(id => getHeroSkill(id)).map((skill) => <img className='cursor-pointer' title={skill.description} key={skill.id + hero.id} src={skill.img} alt={skill.name} />)}
+                        </div>
                     </div>
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(25px,1fr))] gap-3 m-2 overflow-y-scroll">
-                        {hero.items.map(id => getHeroItem(id)).map((item) => <img className='cursor-pointer' title={item.description} key={item.id + hero.id} src={item.img} alt={item.name} />)}
+                    <div className="overflow-y-scroll">
+                        <h2>Items</h2>
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(25px,1fr))] gap-3 m-2">
+                            {hero.items.map(id => getHeroItem(id)).map((item) => <img className='cursor-pointer' title={item.description} key={item.id + hero.id} src={item.img} alt={item.name} />)}
+                        </div>
                     </div>
                 </div>
             </HeroInfo>

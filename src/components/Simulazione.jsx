@@ -100,7 +100,7 @@ export default function({ logs }) {
     }, [inProgress])
 
     return (
-        <div className='flex'>
+        <div>
             <div className='flex flex-col'>
                 <div className='flex items-center w-full'>
                     <button className="w-full bg-red-500 p-4 shadow-md active:shadow-sm active:bg-red-300" onClick={reset}>Back to Selection</button>

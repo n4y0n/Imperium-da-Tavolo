@@ -88,6 +88,14 @@ const slice = createSlice({
                 skills.push(skill.id)
             }
         },
+        toggleHeroItem: (state, { payload: { player, item } }) => {
+            const items = state[player].hero.items
+            if (items.includes(item.id)) {
+                state[player].hero.items = items.filter(sk => sk !== item.id)
+            } else {
+                items.push(item.id)
+            }
+        },
         resetSimulationLogs: state => {
             state.p1.troops = Object.entries(state.p1.troops).filter(e => e[1].hp > 0).reduce((o, n) => { o[n[0]] = n[1]; return o }, {})
             state.p2.troops = Object.entries(state.p2.troops).filter(e => e[1].hp > 0).reduce((o, n) => { o[n[0]] = n[1]; return o }, {})
@@ -170,6 +178,7 @@ export const {
     setTroopPointer,
     toggleHeroSkill,
     resetSimulationLogs,
+    toggleHeroItem,
 } = slice.actions
 
 export const simulate = createAsyncThunk('game/simulate', async (arg, { getState }) => {

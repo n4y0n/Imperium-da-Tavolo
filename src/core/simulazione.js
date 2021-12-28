@@ -1,6 +1,6 @@
 // Durante il conbattimento
 
-import { playerDead, stages, truppaCattiva, playerFighter, getRearDamagePercent } from "./utils";
+import { playerDead, stages, truppaCattiva, playerFighter, getRearDamagePercent, actors } from "./utils";
 import { applyEffect } from "./effects";
 
 const TURNS_PER_ENERGY_RECOVER = 4;
@@ -42,13 +42,13 @@ export function* createSimulation(ctx, alice, bob) {
     ctx.singleUseSkills = false
     // Applica le single-use skill
     for (let skill of alice.hero.skills)
-      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, actors.HERO))
     for (let skill of bob.hero.skills)
-      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, actors.HERO))
     for (let skill of alice.hero.items)
-      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, actors.HERO))
     for (let skill of bob.hero.items)
-      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, 'hero'))
+      applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx, actors.HERO))
     if (alice.troop)
       for (let skill of alice.troop.skills)
         applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(alice, bob, ctx))
@@ -57,22 +57,22 @@ export function* createSimulation(ctx, alice, bob) {
         applyEffect(stages.BEFORE_BATTLE, skill, setupEffectContext(bob, alice, ctx))
   }
 
+  ctx.logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
+  if (truppaCattiva(btroop) && !truppaCattiva(atroop) && !atroop.isHero) {
+    atroop.hp *= 4
+  }
+  if (!truppaCattiva(btroop) && truppaCattiva(atroop) && !btroop.isHero) {
+    btroop.hp *= 4
+  }
+  if (atroop.isHero && !btroop.isHero && !truppaCattiva(btroop)) {
+    btroop.hp *= 10
+  }
+  if (!atroop.isHero && btroop.isHero && !truppaCattiva(atroop)) {
+    atroop.hp *= 10
+  }
+
   do {
-    if (ctx.iteration === 1) {
-      ctx.logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
-      if (truppaCattiva(btroop) && !truppaCattiva(atroop) && !atroop.isHero) {
-        atroop.hp *= 4
-      }
-      if (!truppaCattiva(btroop) && truppaCattiva(atroop) && !btroop.isHero) {
-        btroop.hp *= 4
-      }
-      if (atroop.isHero && !btroop.isHero && !truppaCattiva(btroop)) {
-        btroop.hp *= 10
-      }
-      if (!atroop.isHero && btroop.isHero && !truppaCattiva(atroop)) {
-        atroop.hp *= 10
-      }
-    } else {
+    if (ctx.iteration !== 1) {
       ctx.logs.push(`--------------------------------------------`);
     }
 
@@ -124,6 +124,8 @@ function turn(ctx, alice, bob) {
   pushState(alice)
   pushState(bob)
 
+  applyRearSkills(stages.BEFORE_DAMAGE, alice, bob, ctx)
+  applyRearSkills(stages.BEFORE_DAMAGE, bob, alice, ctx)
   applySkills(stages.BEFORE_DAMAGE, alice, bob, ctx)
 
   computeRearDamage(bob, alice)
@@ -139,6 +141,8 @@ function turn(ctx, alice, bob) {
   enemy.hp -= enemy.damage;
 
   applySkills(stages.AFTER_DAMAGE, alice, bob, ctx)
+  applyRearSkills(stages.AFTER_DAMAGE, alice, bob, ctx)
+  applyRearSkills(stages.AFTER_DAMAGE, bob, alice, ctx)
 
   popState(bob)
   popState(alice)
@@ -172,11 +176,13 @@ function computeRearDamage(alice, bob) {
   }
 }
 
-function setupEffectContext(self, enemy, ctx, def = 'troop') {
-  if (def === 'troop')
+function setupEffectContext(self, enemy, ctx, def = actors.TROOP) {
+  if (def === actors.TROOP)
     return { self: playerFighter(self), selfPlayer: self, other: playerFighter(enemy), ...ctx }
-  if (def === 'hero')
+  if (def === actors.HERO)
     return { self: self.hero, selfPlayer: self, other: playerFighter(enemy), ...ctx }
+  if (def === actors.REAR)
+    return { self: self, selfPlayer: self.player, other: playerFighter(enemy), ...ctx }
 }
 
 function applySkills(stage, alice, bob, ctx) {
@@ -189,6 +195,17 @@ function applySkills(stage, alice, bob, ctx) {
   for (const code of btroop.skills) {
     if (!code) continue
     applyEffect(stage, code, setupEffectContext(bob, alice, ctx))
+  }
+}
+
+function applyRearSkills(stage, alice, bob, ctx) {
+  for (let rear of alice.rears) {
+    for (const code of rear.skills) {
+      if (!code) continue
+      rear['player'] = alice
+      applyEffect(stage, code, setupEffectContext(rear, bob, ctx, actors.REAR))
+      delete rear['player']
+    }
   }
 }
 
