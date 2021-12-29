@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { simulate, simulateTick } from './store/game'
+
 import PlayerComp from './components/Player'
 import Simulazione from './components/Simulazione'
 

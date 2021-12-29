@@ -76,3 +76,11 @@ export function flatten(object) {
     }
     return flattened
 }
+
+export function unflatten(array) {
+    const object = {}
+    for (let i = 0; i < array.length; i++) {
+        object[i] = array[i];
+    }
+    return object;
+}

@@ -185,22 +185,12 @@ export const simulate = createAsyncThunk('game/simulate', async (arg, { getState
     // setup simulation context
     const context = setupContext(game)
 
-    // Assert context validity
-    assertHero(context.p1)
-    assertHero(context.p2)
-
     // setup players
     const alice = setupPlayer('alice', context.p1)
     const bob = setupPlayer('bob', context.p2)
 
-    context.alice = alice;
-    context.bob = bob;
-
     // start simulation for a battle
     const result = fastSimulate(context, alice, bob)
-
-    result.p1.troops = unflatten(result.alice.troops);
-    result.p2.troops = unflatten(result.bob.troops);
 
     // return finished battle context
     return lossyCopy(result)
@@ -212,25 +202,14 @@ export const simulateTick = createAsyncThunk('game/simulate-tick', async (arg, {
     // setup simulation context
     const context = setupContext(game)
 
-    // Assert context validity
-    assertHero(context.p1)
-    assertHero(context.p2)
-
     // setup players
     const alice = setupPlayer('alice', context.p1)
     const bob = setupPlayer('bob', context.p2)
 
-    context.alice = alice;
-    context.bob = bob;
-
     // if there is a simulation running use that, else create a new one
-    currentSimulation = context.inProgress ? currentSimulation : createSimulation(context)
+    currentSimulation = context.inProgress ? currentSimulation : createSimulation(context, alice, bob)
 
     const tickResult = currentSimulation.next();
-
-    tickResult.value.p1.troops = unflatten(tickResult.value.alice.troops);
-    tickResult.value.p2.troops = unflatten(tickResult.value.bob.troops);
-
     // Return simulation context after one simulation tick
     return lossyCopy(tickResult.value)
 })
@@ -241,41 +220,21 @@ export const fastFowardCurrentSimulation = createAsyncThunk('game/simulate-tick-
     // setup simulation context
     const context = setupContext(game)
 
-    // Assert context validity
-    assertHero(context.p1)
-    assertHero(context.p2)
-
     // setup players
     const alice = setupPlayer('alice', context.p1)
     const bob = setupPlayer('bob', context.p2)
 
-    context.alice = alice;
-    context.bob = bob;
-
     // if there is a simulation running use that, else create a new one
-    currentSimulation = context.inProgress ? currentSimulation : createSimulation(context)
+    currentSimulation = context.inProgress ? currentSimulation : createSimulation(context, alice, bob)
 
     let lastState = context
     for (let state of currentSimulation) {
         lastState = state
     }
 
-    lastState.p1.troops = unflatten(lastState.alice.troops);
-    lastState.p2.troops = unflatten(lastState.bob.troops);
-
-    console.log(lastState.bob.troops);
-
     // Return simulation context after one simulation tick
     return lossyCopy(lastState)
 })
-
-function unflatten(array) {
-    const object = {}
-    for (let i = 0; i < array.length; i++) {
-        object[i] = array[i];
-    }
-    return object;
-}
 
 function setupContext({ p1, p2, simulation }) {
     const context = lossyCopy(simulation)
@@ -285,6 +244,11 @@ function setupContext({ p1, p2, simulation }) {
         console.log(val)
         Array.prototype.push.call(this, val)
     }
+
+    // Assert context validity
+    assertHero(context.p1)
+    assertHero(context.p2)
+
     return context;
 }
 
