@@ -22,11 +22,12 @@ export function* createSimulation(ctx, alice, bob) {
   const atroop = playerFighter(alice)
   const btroop = playerFighter(bob)
   ctx.inProgress = true;
-  ctx.logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
 
   // 1 - Hero level (troop hp + 5 * hero Level)
   applyLevelBoost(alice)
   applyLevelBoost(bob)
+
+  ctx.logs.push(`Scontro ${atroop.name} ${atroop.level}LV contro ${btroop.name} ${btroop.level}LV`);
 
   if (ctx.singleUseSkills) {
     applyBeforeBattleSkills(ctx, alice, bob)

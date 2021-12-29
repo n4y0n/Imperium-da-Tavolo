@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { simulate, simulateTick } from './store/game'
 
+import Button from './components/Button'
 import PlayerComp from './components/Player'
 import Simulazione from './components/Simulazione'
 
@@ -15,9 +16,9 @@ function App() {
 
   return (
     <div>
-      <div className='flex items-center w-full'>
-        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 my-3" onClick={() => dispatch(simulate())}>FastSimula</button>
-        <button className="w-full bg-green-500 p-4 shadow-md active:shadow-sm active:bg-green-300 my-3" onClick={() => dispatch(simulateTick())}>Simula</button>
+      <div className='flex justify-center gap-20 w-full mt-6'>
+        <Button color="success" size="lg" onClick={() => dispatch(simulate())}>FastSimula</Button>
+        <Button color="success" size="lg" onClick={() => dispatch(simulateTick())}>Simula</Button>
       </div>
       <div className='my-7 text-center'>
         {error?.message}

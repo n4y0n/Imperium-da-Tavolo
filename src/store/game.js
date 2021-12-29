@@ -9,6 +9,7 @@ let currentSimulation = null
 const initialState = {
     p1: {
         hero: null,
+        attacking: false,
         troops: {},
         civ: defCiv,
         troopPointer: 0,
@@ -17,6 +18,7 @@ const initialState = {
     p2: {
         hero: null,
         troops: {},
+        attacking: false,
         civ: defCiv,
         troopPointer: 0,
         troopPointerState: 'auto',
@@ -101,6 +103,9 @@ const slice = createSlice({
             if (state.p2.hero.hp <= 0) state.p2.hero = null
             currentSimulation = null;
             state.simulation.logs = []
+        },
+        attack: (state, { payload: { player } }) => {
+            state[player].attacking = !state[player].attacking
         }
     },
     extraReducers: builder => {
@@ -177,6 +182,7 @@ export const {
     toggleHeroSkill,
     resetSimulationLogs,
     toggleHeroItem,
+    attack,
 } = slice.actions
 
 export const simulate = createAsyncThunk('game/simulate', async (arg, { getState }) => {
