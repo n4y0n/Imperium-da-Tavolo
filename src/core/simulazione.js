@@ -58,6 +58,9 @@ export function* createSimulation(ctx, alice, bob) {
     recoverEnergy(ctx.iteration, alice)
     recoverEnergy(ctx.iteration, bob)
     ctx.iteration++;
+
+    ctx.p1.troops = unflatten(alice.troops);
+    ctx.p2.troops = unflatten(bob.troops);
     yield ctx
   } while (!playerDead(alice) && !playerDead(bob));
 
