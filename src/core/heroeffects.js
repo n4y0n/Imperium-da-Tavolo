@@ -123,20 +123,6 @@ const effects = {
 			return true;
 		}
 	},
-	euphoria: {
-		cost: 0,
-		[stages.BEFORE_DAMAGE]: ({ self, other, logs, selfPlayer, otherPlayer }) => {
-			if(other.hp > 0)
-				return;
-			logs.push(`${self.name} usa euphoria e ripristina 5 energia a tutte le sue truppe.`);
-			for(const troop of selfPlayer.troops) {
-				troop.energy += 5;
-				if(troop.energy > troop.maxEnergy)
-					troop.energy = troop.maxEnergy;
-			}
-			return true;
-		}
-	},
 	healing: {
 		cost: 0,
 		[stages.BEFORE_DAMAGE]: ({ self, other, logs, selfPlayer, otherPlayer }) => {
@@ -147,6 +133,20 @@ const effects = {
 				troop.hp += 100;
 				if(troop.hp > troop.maxHp)
 					troop.hp = troop.maxHp;
+			}
+			return true;
+		}
+	},
+	euphoria: {
+		cost: 0,
+		[stages.AFTER_DAMAGE]: ({ self, other, logs, selfPlayer, otherPlayer }) => {
+			if(other.hp > 0)
+				return;
+			logs.push(`${self.name} usa euphoria e ripristina 5 energia a tutte le sue truppe.`);
+			for(const troop of selfPlayer.troops) {
+				troop.energy += 5;
+				if(troop.energy > troop.maxEnergy)
+					troop.energy = troop.maxEnergy;
 			}
 			return true;
 		}
